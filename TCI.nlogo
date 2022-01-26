@@ -11,14 +11,21 @@ globals
 
 students-own
 [
-  user-id   ;; Students choose a user name when they log in. Whenever the server receives a
-            ;; message from the student associated with this turtle hubnet-message-source
-            ;; it will contain the user-id.
+  user-id     ;; Students choose a user name when they log in. Whenever the server receives a
+              ;; message from the student associated with this turtle hubnet-message-source
+              ;; it will contain the user-id.
 
-            ;; There should be a turtle variable for every widget in the client interface that
-            ;; stores a value (sliders, choosers, and switches). The server will receive a message
-            ;; from the client whenever the value changes. However, it will not be able to
-            ;; retrieve the value at will unless it is stored it in a variable on the server.
+              ;; There should be a turtle variable for every widget in the client interface that
+              ;; stores a value (sliders, choosers, and switches). The server will receive a message
+              ;; from the client whenever the value changes. However, it will not be able to
+              ;; retrieve the value at will unless it is stored it in a variable on the server.
+]
+
+patches-own
+[
+  level       ;; The concept level: 1 (highest) to grid-size (lowest)
+  breadth     ;; Breadth at the concept level: 1 (leftmost) to grid-size (rightmost)
+  concept-no  ;; The concept number associated with the patch.
 ]
 
 ;; the STARTUP procedure runs only once at the beginning of the model
@@ -37,6 +44,7 @@ to setup
   ;; know about the change if the value appears anywhere in their interface.
 
   setup-input-parameters
+  setup-grid
   ask turtles
   [
     hubnet-send user-id shape "box 2"
@@ -181,6 +189,8 @@ to execute-overrides
 end
 
 to setup-input-parameters
+  ;; This procedure reads the set of concepts from the input file.
+  ;; Each concept is a line (i.e., single or multiple words) separated by carriage returns.
   file-open "Input-Parameters.txt"
   set concept []
   while [ not file-at-end? ]
@@ -189,6 +199,33 @@ to setup-input-parameters
   ]
   set concepts length concept
   file-close
+end
+
+to setup-grid
+  ;; This procedure is used to setup the concepts grid and to initialise the concept patches.
+  let i 0
+  let j 0
+  let wgrid-size round ( concepts * grid-width / 100 )
+  let width max-pxcor - min-pxcor - 2 * margins
+  let wgap width / ( wgrid-size - 1 )
+  let hgrid-size round ( concepts * grid-height / 100 )
+  let height max-pycor - min-pycor - 2 * margins
+  let hgap height / ( hgrid-size - 1 )
+  while [ i < hgrid-size ]
+  [
+    while [ j < wgrid-size ]
+    [
+      ask patch ( min-pxcor + margins + j * wgap ) ( max-pycor - margins - i * hgap )
+      [
+        set pcolor grey
+        set level i
+        set breadth j
+      ]
+      set j j + 1
+    ]
+    set j 0
+    set i i + 1
+  ]
 end
 
 to-report random-between [ min-num max-num ]
@@ -269,6 +306,36 @@ max-pxcor - 1
 0.5
 1
 NIL
+HORIZONTAL
+
+SLIDER
+34
+170
+177
+203
+grid-width
+grid-width
+0
+100
+40.0
+1
+1
+%
+HORIZONTAL
+
+SLIDER
+34
+132
+178
+165
+grid-height
+grid-height
+0
+100
+60.0
+1
+1
+%
 HORIZONTAL
 
 @#$#@#$#@
