@@ -19,13 +19,13 @@ students-own
               ;; stores a value (sliders, choosers, and switches). The server will receive a message
               ;; from the client whenever the value changes. However, it will not be able to
               ;; retrieve the value at will unless it is stored it in a variable on the server.
+  concept-no  ;; The concept number associated with the turtle.
 ]
 
 patches-own
 [
   level       ;; The concept level: 1 (highest) to grid-size (lowest)
   breadth     ;; Breadth at the concept level: 1 (leftmost) to grid-size (rightmost)
-  concept-no  ;; The concept number associated with the patch.
 ]
 
 ;; the STARTUP procedure runs only once at the beginning of the model
@@ -110,6 +110,7 @@ to create-new-student
         random-between ( min-pycor + margins ) ( max-pycor - margins )
       set color student-color
       set shape "box 2"
+      set concept-no i + 1
       ;; Store the message-source in user-id now so the server knows which client to address.
       set user-id hubnet-message-source
       set label (word item i concept " (" user-id ")" )
@@ -218,8 +219,8 @@ to setup-grid
       ask patch ( min-pxcor + margins + j * wgap ) ( max-pycor - margins - i * hgap )
       [
         set pcolor grey
-        set level i
-        set breadth j
+        set level i + 1
+        set breadth j + 1
       ]
       set j j + 1
     ]
