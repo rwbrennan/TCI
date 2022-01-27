@@ -4,9 +4,12 @@ breed [ students student ]
 
 globals
 [
-  selected  ;; identifies the student concept to be moved
-  concepts  ;; number of concepts
-  concept   ;; concept list
+  selected    ;; identifies the student concept to be moved
+  concepts    ;; number of concepts
+  concept     ;; concept list
+  concepts-at ;; concepts at a given level
+  hgrid-size  ;; number of concept targets (breadth)
+  wgrid-size  ;; number of concept targets (breadth)
 ]
 
 students-own
@@ -24,8 +27,8 @@ students-own
 
 patches-own
 [
-  level       ;; The concept level: 1 (highest) to grid-size (lowest)
-  breadth     ;; Breadth at the concept level: 1 (leftmost) to grid-size (rightmost)
+  level       ;; The concept level: 1 (highest) to hgrid-size (lowest)
+  breadth     ;; Breadth at the concept level: 1 (leftmost) to wgrid-size (rightmost)
 ]
 
 ;; the STARTUP procedure runs only once at the beginning of the model
@@ -206,10 +209,10 @@ to setup-grid
   ;; This procedure is used to setup the concepts grid and to initialise the concept patches.
   let i 0
   let j 0
-  let wgrid-size round ( concepts * grid-width / 100 )
+  set wgrid-size round ( concepts * grid-width / 100 )
   let width max-pxcor - min-pxcor - 2 * margins
   let wgap width / ( wgrid-size - 1 )
-  let hgrid-size round ( concepts * grid-height / 100 )
+  set hgrid-size round ( concepts * grid-height / 100 )
   let height max-pycor - min-pycor - 2 * margins
   let hgap height / ( hgrid-size - 1 )
   while [ i < hgrid-size ]
@@ -227,6 +230,20 @@ to setup-grid
     set j 0
     set i i + 1
   ]
+end
+
+to-report concepts-at-level [ concept-level concept-number ]
+  ;; This procedure is used to report on the number of concepts that have been moved to a given level
+  let i 1
+  let total-at-level 0
+  while [ i <= wgrid-size ]
+  [
+    ask patches with [ level = concept-level and breadth = i ]
+      [ set total-at-level total-at-level + ( count students-here with [ concept-no = concept-number ] ) ]
+    set i i + 1
+  ]
+  let total-concepts-at-level count students-on patches with [ level = concept-level ]
+  report (word "L" concept-level ": " (item ( concept-number - 1 ) concept) " x " total-at-level "/" total-concepts-at-level)
 end
 
 to-report random-between [ min-num max-num ]
@@ -261,10 +278,10 @@ ticks
 30.0
 
 BUTTON
-34
-51
-105
-84
+10
+17
+81
+50
 NIL
 setup
 NIL
@@ -278,10 +295,10 @@ NIL
 1
 
 BUTTON
-107
-51
-178
-84
+83
+17
+154
+50
 NIL
 go
 T
@@ -295,10 +312,10 @@ NIL
 0
 
 SLIDER
-34
-94
-178
-127
+10
+60
+154
+93
 margins
 margins
 0
@@ -310,10 +327,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-34
-170
-177
-203
+10
+136
+153
+169
 grid-width
 grid-width
 0
@@ -325,10 +342,10 @@ grid-width
 HORIZONTAL
 
 SLIDER
-34
-132
-178
-165
+10
+98
+154
+131
 grid-height
 grid-height
 0
@@ -338,6 +355,37 @@ grid-height
 1
 %
 HORIZONTAL
+
+CHOOSER
+12
+192
+104
+237
+ConceptLevel
+ConceptLevel
+1 2 3 4 5 6 7 8 9 10
+3
+
+MONITOR
+11
+245
+190
+290
+Concepts
+concepts-at-level ConceptLevel ConceptNo
+17
+1
+11
+
+CHOOSER
+105
+192
+197
+237
+ConceptNo
+ConceptNo
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+5
 
 @#$#@#$#@
 ## WHAT IS IT?
