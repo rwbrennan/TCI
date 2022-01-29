@@ -232,6 +232,19 @@ to setup-grid
   ]
 end
 
+to-report c-position [ concept-number ]
+  ;; This procedure is used to calculate the mean position of all students' with concept = concept-number
+  ;; A list is reported as follows:
+  ;;     item 0 = mean xcor
+  ;;     item 1 = mean ycor
+  ;;     item 2 = std dev ycor (used to colour the server concept to indicate level of consensus)
+  let concept-position []
+  set concept-position lput mean [ xcor ] of students with [ concept-no = concept-number ] concept-position
+  set concept-position lput mean [ ycor ] of students with [ concept-no = concept-number ] concept-position
+  set concept-position lput sqrt variance [ ycor ] of students with [ concept-no = concept-number ] concept-position
+  report concept-position
+end
+
 to-report concepts-at-level [ concept-level concept-number ]
   ;; This procedure is used to report on the number of concepts that have been moved to a given level
   let i 1
@@ -385,7 +398,40 @@ CHOOSER
 ConceptNo
 ConceptNo
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-5
+0
+
+MONITOR
+12
+306
+96
+351
+Concept xcor
+item 0 c-position ConceptNo
+2
+1
+11
+
+MONITOR
+102
+306
+186
+351
+Concept ycor
+item 1 c-position ConceptNo
+2
+1
+11
+
+MONITOR
+11
+356
+96
+401
+Concept SD
+item 2 c-position ConceptNo
+2
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
