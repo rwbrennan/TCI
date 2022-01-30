@@ -38,15 +38,16 @@ to setup
   clear-patches
   clear-drawing
   clear-output
+  clear-turtles
   ;; during setup you do not want to kill all the turtles
   ;; (if you do you'll lose any information you have about the clients)
   ;; so reset any variables you want to default values, and let the clients
   ;; know about the change if the value appears anywhere in their interface.
 
-  ;create-class-concepts
   setup-input-parameters
   setup-levels
   create-class-concepts
+  set Track FALSE
   ;ask turtles
   ask students
   [
@@ -70,9 +71,13 @@ to go
     ;; these types of messages should only be sent inside an every block.
     ;; otherwise, the messages will be created as fast as possible
     ;; and consume your bandwidth.
+    if Track and length hubnet-clients-list > 1 [ position-class-concepts ]
+    ifelse Hide-Concepts
+    [ ask classes [set hidden? TRUE ] ]
+    [ ask classes [set hidden? FALSE ] ]
     tick
   ]
-  ;if length hubnet-clients-list >= 2 [ position-class-concepts ]
+
 end
 
 ;;
@@ -113,7 +118,7 @@ to create-new-student
       ;; display concepts vertically on right of world view
       setxy (max-pxcor - gap) (max-pycor - (i + 1) * gap)
       set color student-color
-      set shape "box 2"
+      set shape "box"
       set concept-no i + 1
       ;; Store the message-source in user-id now so the server knows which client to address.
       set user-id hubnet-message-source
@@ -133,8 +138,8 @@ to create-class-concepts
     [
       ;; display concepts vertically on right of world view
       setxy 0 (max-pycor - (i + 1) * gap)
-      set color white
-      set shape "star"
+      set color grey
+      set shape "box"
       set concept-no i + 1
       ;; Store the message-source in user-id now so the server knows which client to address.
       set label item i concept
@@ -246,9 +251,16 @@ to position-class-concepts
   [
     ask classes with [ concept-no = i ]
     [
-      set xcor item 0 c-position ConceptNo
-      set ycor item 1 c-position ConceptNo
-      ;set color item 2 c-position ConceptNo
+      set xcor item 0 c-position i
+      set ycor item 1 c-position i
+      ;set color item 2 c-position i
+      let consensus item 2 c-position i
+      (ifelse
+        consensus < 5 [set color green]
+        consensus >= 5 and consensus < 10 [set color yellow]
+        consensus >= 10 and consensus < 15 [set color orange]
+        consensus >= 15 [set color red]
+      )
     ]
     set i i + 1
   ]
@@ -340,7 +352,7 @@ CHOOSER
 ConceptNo
 ConceptNo
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-0
+8
 
 MONITOR
 11
@@ -400,6 +412,28 @@ item (ConceptNo - 1) concept
 17
 1
 11
+
+SWITCH
+10
+99
+113
+132
+Track
+Track
+0
+1
+-1000
+
+SWITCH
+10
+142
+160
+175
+Hide-Concepts
+Hide-Concepts
+1
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
