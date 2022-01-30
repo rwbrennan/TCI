@@ -7,9 +7,6 @@ globals
   selected    ;; identifies the student concept to be moved
   concepts    ;; number of concepts
   concept     ;; concept list
-  concepts-at ;; concepts at a given level
-  hgrid-size  ;; number of concept targets (breadth)
-  wgrid-size  ;; number of concept targets (breadth)
 ]
 
 students-own
@@ -23,12 +20,6 @@ students-own
               ;; from the client whenever the value changes. However, it will not be able to
               ;; retrieve the value at will unless it is stored it in a variable on the server.
   concept-no  ;; The concept number associated with the turtle.
-]
-
-patches-own
-[
-  level       ;; The concept level: 1 (highest) to hgrid-size (lowest)
-  breadth     ;; Breadth at the concept level: 1 (leftmost) to wgrid-size (rightmost)
 ]
 
 ;; the STARTUP procedure runs only once at the beginning of the model
@@ -48,7 +39,6 @@ to setup
 
   setup-input-parameters
   setup-levels
-  ;setup-grid
   ask turtles
   [
     hubnet-send user-id shape "box 2"
@@ -105,13 +95,13 @@ to create-new-student
   let i 0
   ;; Each student will be represented by a different base color in the server interface.
   let student-color one-of remove gray base-colors
+  let gap (max-pycor - min-pycor) / (length concept + 1)
   while [ i < concepts]
   [
     create-students 1
     [
-      ;setxy random-xcor random-ycor
-      setxy random-between ( min-pxcor + margins ) ( max-pxcor - margins )
-        random-between ( min-pycor + margins ) ( max-pycor - margins )
+      ;; display concepts vertically on right of world view
+      setxy (max-pxcor - gap) (max-pycor - (i + 1) * gap)
       set color student-color
       set shape "box 2"
       set concept-no i + 1
@@ -220,33 +210,6 @@ to setup-levels
   ]
 end
 
-to setup-grid
-  ;; This procedure is used to setup the concepts grid and to initialise the concept patches.
-  let i 0
-  let j 0
-  set wgrid-size round ( concepts * grid-width / 100 )
-  let width max-pxcor - min-pxcor - 2 * margins
-  let wgap width / ( wgrid-size - 1 )
-  set hgrid-size round ( concepts * grid-height / 100 )
-  let height max-pycor - min-pycor - 2 * margins
-  let hgap height / ( hgrid-size - 1 )
-  while [ i < hgrid-size ]
-  [
-    while [ j < wgrid-size ]
-    [
-      ask patch ( min-pxcor + margins + j * wgap ) ( max-pycor - margins - i * hgap )
-      [
-        set pcolor grey
-        set level i + 1
-        set breadth j + 1
-      ]
-      set j j + 1
-    ]
-    set j 0
-    set i i + 1
-  ]
-end
-
 to-report c-position [ concept-number ]
   ;; This procedure is used to calculate the mean position of all students' with concept = concept-number
   ;; A list is reported as follows:
@@ -258,20 +221,6 @@ to-report c-position [ concept-number ]
   set concept-position lput mean [ ycor ] of students with [ concept-no = concept-number ] concept-position
   set concept-position lput sqrt variance [ ycor ] of students with [ concept-no = concept-number ] concept-position
   report concept-position
-end
-
-to-report concepts-at-level [ concept-level concept-number ]
-  ;; This procedure is used to report on the number of concepts that have been moved to a given level
-  let i 1
-  let total-at-level 0
-  while [ i <= wgrid-size ]
-  [
-    ask patches with [ level = concept-level and breadth = i ]
-      [ set total-at-level total-at-level + ( count students-here with [ concept-no = concept-number ] ) ]
-    set i i + 1
-  ]
-  let total-concepts-at-level count students-on patches with [ level = concept-level ]
-  report (word "L" concept-level ": " (item ( concept-number - 1 ) concept) " x " total-at-level "/" total-concepts-at-level)
 end
 
 to-report random-between [ min-num max-num ]
@@ -339,87 +288,21 @@ NIL
 NIL
 0
 
-SLIDER
-10
-60
-154
-93
-margins
-margins
-0
-max-pxcor - 1
-1.5
-0.5
-1
-NIL
-HORIZONTAL
-
-SLIDER
-10
-136
-153
-169
-grid-width
-grid-width
-0
-100
-40.0
-1
-1
-%
-HORIZONTAL
-
-SLIDER
-10
-98
-154
-131
-grid-height
-grid-height
-0
-100
-60.0
-1
-1
-%
-HORIZONTAL
-
 CHOOSER
 12
-192
+199
 104
-237
-ConceptLevel
-ConceptLevel
-1 2 3 4 5 6 7 8 9 10
-5
-
-MONITOR
-11
-245
-190
-290
-Concepts
-concepts-at-level ConceptLevel ConceptNo
-17
-1
-11
-
-CHOOSER
-105
-192
-197
-237
+244
 ConceptNo
 ConceptNo
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-2
+7
 
 MONITOR
-12
-306
-96
-351
+11
+301
+95
+346
 Concept xcor
 item 0 c-position ConceptNo
 2
@@ -427,10 +310,10 @@ item 0 c-position ConceptNo
 11
 
 MONITOR
-102
-306
-186
-351
+101
+301
+185
+346
 Concept ycor
 item 1 c-position ConceptNo
 2
@@ -438,10 +321,10 @@ item 1 c-position ConceptNo
 11
 
 MONITOR
-11
-356
-96
-401
+10
+351
+95
+396
 Concept SD
 item 2 c-position ConceptNo
 2
@@ -449,10 +332,10 @@ item 2 c-position ConceptNo
 11
 
 SLIDER
-11
-419
-183
-452
+10
+58
+182
+91
 Levels
 Levels
 0
@@ -462,6 +345,17 @@ concepts
 1
 NIL
 HORIZONTAL
+
+MONITOR
+12
+248
+189
+293
+Concept
+item (ConceptNo - 1) concept
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
