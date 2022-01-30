@@ -47,7 +47,8 @@ to setup
   ;; know about the change if the value appears anywhere in their interface.
 
   setup-input-parameters
-  setup-grid
+  setup-levels
+  ;setup-grid
   ask turtles
   [
     hubnet-send user-id shape "box 2"
@@ -203,6 +204,20 @@ to setup-input-parameters
   ]
   set concepts length concept
   file-close
+end
+
+to setup-levels
+  ;;
+  let spacing round ((max-pycor - min-pycor) / (Levels + 1))
+  let next-level spacing
+  let i 0
+  while [ i < Levels ]
+  [
+    ask patches with [ pycor = max-pycor - next-level ] [set pcolor grey]
+    ask patch (min-pxcor + 1) (max-pycor - next-level) [set plabel-color black set plabel (word "L: " (i + 1))]
+    set next-level next-level + spacing
+    set i i + 1
+  ]
 end
 
 to setup-grid
@@ -377,7 +392,7 @@ CHOOSER
 ConceptLevel
 ConceptLevel
 1 2 3 4 5 6 7 8 9 10
-3
+5
 
 MONITOR
 11
@@ -398,7 +413,7 @@ CHOOSER
 ConceptNo
 ConceptNo
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-0
+2
 
 MONITOR
 12
@@ -432,6 +447,21 @@ item 2 c-position ConceptNo
 2
 1
 11
+
+SLIDER
+11
+419
+183
+452
+Levels
+Levels
+0
+concepts
+5.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
