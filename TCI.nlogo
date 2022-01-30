@@ -1,6 +1,7 @@
 ;; create a breed of turtles that the students control through the clients
 ;; there will be one student turtle for each client.
 breed [ students student ]
+breed [ classes class ]
 
 globals
 [
@@ -22,6 +23,11 @@ students-own
   concept-no  ;; The concept number associated with the turtle.
 ]
 
+classes-own
+[
+  concept-no  ;; The concept number associated with the turtle.
+]
+
 ;; the STARTUP procedure runs only once at the beginning of the model
 ;; at this point you must initialize the system.
 to startup
@@ -37,9 +43,12 @@ to setup
   ;; so reset any variables you want to default values, and let the clients
   ;; know about the change if the value appears anywhere in their interface.
 
+  ;create-class-concepts
   setup-input-parameters
   setup-levels
-  ask turtles
+  create-class-concepts
+  ;ask turtles
+  ask students
   [
     hubnet-send user-id shape "box 2"
   ]
@@ -63,6 +72,7 @@ to go
     ;; and consume your bandwidth.
     tick
   ]
+  ;if length hubnet-clients-list >= 2 [ position-class-concepts ]
 end
 
 ;;
@@ -109,6 +119,26 @@ to create-new-student
       set user-id hubnet-message-source
       set label (word item i concept " (" user-id ")" )
       set label-color student-color
+    ]
+    set i i + 1
+  ]
+end
+
+to create-class-concepts
+  let i 0
+  let gap (max-pycor - min-pycor) / (length concept + 1)
+  while [ i < concepts]
+  [
+    create-classes 1
+    [
+      ;; display concepts vertically on right of world view
+      setxy 0 (max-pycor - (i + 1) * gap)
+      set color white
+      set shape "star"
+      set concept-no i + 1
+      ;; Store the message-source in user-id now so the server knows which client to address.
+      set label item i concept
+      set label-color white
     ]
     set i i + 1
   ]
@@ -210,6 +240,20 @@ to setup-levels
   ]
 end
 
+to position-class-concepts
+  let i 1
+  while [ i <= concepts ]
+  [
+    ask classes with [ concept-no = i ]
+    [
+      set xcor item 0 c-position ConceptNo
+      set ycor item 1 c-position ConceptNo
+      ;set color item 2 c-position ConceptNo
+    ]
+    set i i + 1
+  ]
+end
+
 to-report c-position [ concept-number ]
   ;; This procedure is used to calculate the mean position of all students' with concept = concept-number
   ;; A list is reported as follows:
@@ -296,7 +340,7 @@ CHOOSER
 ConceptNo
 ConceptNo
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-7
+0
 
 MONITOR
 11
