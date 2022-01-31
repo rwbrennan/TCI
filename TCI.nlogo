@@ -123,7 +123,7 @@ to create-new-student
       ;; Store the message-source in user-id now so the server knows which client to address.
       set user-id hubnet-message-source
       set label (word item i concept " (" user-id ")" )
-      set label-color student-color
+      set label-color white
     ]
     set i i + 1
   ]
@@ -139,11 +139,11 @@ to create-class-concepts
       ;; display concepts vertically on right of world view
       setxy 0 (max-pycor - (i + 1) * gap)
       set color grey
-      set shape "box"
+      set shape "triangle 2"
       set concept-no i + 1
       ;; Store the message-source in user-id now so the server knows which client to address.
       set label item i concept
-      set label-color white
+      set label-color grey
     ]
     set i i + 1
   ]
@@ -256,10 +256,10 @@ to position-class-concepts
       ;set color item 2 c-position i
       let consensus item 2 c-position i
       (ifelse
-        consensus < 5 [set color green]
-        consensus >= 5 and consensus < 10 [set color yellow]
-        consensus >= 10 and consensus < 15 [set color orange]
-        consensus >= 15 [set color red]
+        consensus < 5 [set color green set label-color green]
+        consensus >= 5 and consensus < 10 [set color yellow set label-color yellow]
+        consensus >= 10 and consensus < 15 [set color orange set label-color orange]
+        consensus >= 15 [set color red set label-color red]
       )
     ]
     set i i + 1
