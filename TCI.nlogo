@@ -124,6 +124,7 @@ to create-new-student
       set user-id hubnet-message-source
       set label (word item i concept " (" user-id ")" )
       set label-color white
+      set hidden? TRUE
     ]
     set i i + 1
   ]
@@ -211,6 +212,7 @@ to execute-overrides
   ;; First, the client's concepts are made visible.
   hubnet-send-override hubnet-message-source self "color" [green]
   hubnet-send-override hubnet-message-source self "label-color" [white]
+  hubnet-send-override hubnet-message-source self "hidden?" [FALSE]
   ;;
   ;; Next, all other clients' concepts are hidden from the client's view.
   ask students with [user-id != hubnet-message-source] [
@@ -396,7 +398,7 @@ Levels
 Levels
 0
 concepts
-5.0
+6.0
 1
 1
 NIL
@@ -420,7 +422,7 @@ SWITCH
 132
 Track
 Track
-0
+1
 1
 -1000
 
@@ -431,7 +433,7 @@ SWITCH
 175
 Hide-Concepts
 Hide-Concepts
-1
+0
 1
 -1000
 
