@@ -364,7 +364,7 @@ CHOOSER
 ConceptNo
 ConceptNo
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-8
+1
 
 MONITOR
 11
@@ -474,28 +474,36 @@ of the concepts in the instructor (server) concept map. As well, concepts that s
 
 ## HOW TO USE IT
 
-To setup the activity, the instructor creates an input file, 'Input-Parameters.txt', that contains the concepts that will be used to develop the concept map. Each concept can contain multiple words and should be separated by a carriage return. The instructor also selects the number of concept levels for the concept map. 
+To setup the activity, the instructor creates an input file, 'Input-Parameters.txt', that contains the concepts that will be used to develop the concept map. Each concept can contain multiple words and must be separated by a carriage return. The instructor also selects the number of concept levels for the concept map using the _Levels_ slider. 
 
-Once the Input-Parameters.txt file is created, press SETUP to read the concepts into the ABM. The concepts will be arranged vertically on the right side of the world view and vertically in the middle of the world view for the instructor. The instructor concepts ("class concepts") show the class consensus for each concept: i.e.,
+When SETUP is pressed, the levels (shown by grey horizontal bars) and the concepts will be placed on the screen.  The concepts are arranged vertically on the world view in the order that they are listed in Input-Parameters.txt. 
 
-* position is determined by the mean xcor and ycor of the corresponding student concepts
-* color is determined by the standard deviation of the ycor (level) of the corresponding student concepts (green represents in agreement ... red represents significant disagreement).
+* Instructor (server) View: The concepts are listed vertically in the centre of the world view. The _Hide-Concepts_ switch can be used to hide the class concepts from the instructor (server) and student (client) views.
+* Student (client) View: Initially, the student concepts are hidden; once the student clicks on the world view, concepts are listed vertically to the right of the world view.
 
 To start the activity press the GO button.  Ask students to login using the HubNet client or you can test the activity locally by pressing the LOCAL button in the HubNet Control Center. To see the view in the client interface check the Mirror 2D view on clients checkbox.  
 
-To enable the "consensus tracking" for the class concepts, select "Track" (there must be at least two clients to enable this feature). The instructor may choose to hide the class concepts while the students are rank ordering and clustering the concepts.
+The instructor concepts ("class concepts") show the class consensus for each concept: i.e.,
+
+* _position_ is determined by the mean xcor and ycor of the corresponding student concepts
+* _colour_ is determined by the standard deviation of the ycor (level) of the corresponding student concepts (green represents in agreement ... red represents significant disagreement).
+
+To enable the "consensus tracking" for the class concepts, select the _Track_ slider (there must be at least two clients to enable this feature). As noted, the instructor may choose to hide the class concepts while the students are rank ordering and clustering the concepts.
 
 Once logged in, the students (clients) can follow the steps proposed by Novak (1984) to build the concept map:
 
 1. _Focus Question & Concepts_: This step is completed by the instructor during the setup.
-2. _Rank Order_: Student can click on a concept and drag it to a new location on the world view.
-3. _Cluster_: Student can click on a concept and drag it to a new location on the world view.
+2. _Rank Order_: For this step, students should be asked to drag the concepts to the level bars. The horizontal (left to right) order is not important at this point - students should only concentrate on the vertical order: i.e., The broadest and most inclusive concepts at the top of the map; sub-concepts are placed under broader concepts (Novak, 1984). 
+3. _Cluster_: For this step, students should be asked to cluster the concepts by grouping sub-concepts under general concepts (i.e., consider the horizontal order at this point). 
 4. _Link_: _in development_
 
 ## NEXT STEPS
 
-1. Student Concept Views: Currently, the student concepts are hiddent from the instructor (server) view. It would be nice to be able to show these student concepts. However, rather than showing all student concepts, it would be useful if the instructor could choose specific concepts (e.g., select a concept that has some disagreement).
-2. Links: This next phase of the model will need to be developed.
+* Student Concept Views: Currently, the student concepts are hidden from the instructor (server) view. It would be nice to be able to show these student concepts. However, rather than showing all student concepts, it would be useful if the instructor could choose specific concepts (e.g., select a concept that has some disagreement). It might be possible to use an interface switch (or even better) a mouse click and hold that links to a global variable that is used in a new procedure that un-hides specific students: 
+```
+ask students with [ concept-no = 2 ] [set hidden? FALSE]
+```
+* Links: This next phase of the model will need to be developed.
 
 ## REFERENCES
 
