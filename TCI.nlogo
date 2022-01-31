@@ -130,26 +130,6 @@ to create-new-student
   ]
 end
 
-to create-class-concepts
-  let i 0
-  let gap (max-pycor - min-pycor) / (length concept + 1)
-  while [ i < concepts]
-  [
-    create-classes 1
-    [
-      ;; display concepts vertically on right of world view
-      setxy 0 (max-pycor - (i + 1) * gap)
-      set color grey
-      set shape "triangle 2"
-      set concept-no i + 1
-      ;; Store the message-source in user-id now so the server knows which client to address.
-      set label item i concept
-      set label-color grey
-    ]
-    set i i + 1
-  ]
-end
-
 to remove-student
   ;; When a user logs out, this procedures makes sure to clean up the turtle that
   ;; was associated with that user (so you don't try to send messages to it after it is gone).
@@ -220,6 +200,33 @@ to execute-overrides
   ]
 end
 
+;;
+;; Regular Procedures
+;;
+
+to create-class-concepts
+  ;; This procedure creates the class concepts. These turtles are used to show the "consensus" position of the concepts.
+  ;; - position is determined by the mean xcor and ycor of the corresponding student concepts
+  ;; - color is determined by the standard deviation of the ycor (level) of the corresponding student concepts
+  let i 0
+  let gap (max-pycor - min-pycor) / (length concept + 1)
+  while [ i < concepts]
+  [
+    create-classes 1
+    [
+      ;; display concepts vertically on right of world view
+      setxy 0 (max-pycor - (i + 1) * gap)
+      set color grey
+      set shape "triangle 2"
+      set concept-no i + 1
+      ;; Store the message-source in user-id now so the server knows which client to address.
+      set label item i concept
+      set label-color grey
+    ]
+    set i i + 1
+  ]
+end
+
 to setup-input-parameters
   ;; This procedure reads the set of concepts from the input file.
   ;; Each concept is a line (i.e., single or multiple words) separated by carriage returns.
@@ -234,7 +241,8 @@ to setup-input-parameters
 end
 
 to setup-levels
-  ;;
+  ;; This procedure is used to setup the levels for the concepts. The instructor (server) identifies the number of
+  ;; concept levels on the interface. Students then drag the concepts to the appropriate level.
   let spacing round ((max-pycor - min-pycor) / (Levels + 1))
   let next-level spacing
   let i 0
@@ -248,6 +256,9 @@ to setup-levels
 end
 
 to position-class-concepts
+  ;; This procedure is used to position the class concepts. The class concepts are placed at the mean xcor and ycor
+  ;; of all of the student concepts. The colour of the class concepts is based on the standard deviation and is
+  ;; intended to represent the level of agreement with respect to the level of the concept.
   let i 1
   while [ i <= concepts ]
   [
@@ -255,13 +266,12 @@ to position-class-concepts
     [
       set xcor item 0 c-position i
       set ycor item 1 c-position i
-      ;set color item 2 c-position i
       let consensus item 2 c-position i
       (ifelse
-        consensus < 5 [set color green set label-color green]
-        consensus >= 5 and consensus < 10 [set color yellow set label-color yellow]
-        consensus >= 10 and consensus < 15 [set color orange set label-color orange]
-        consensus >= 15 [set color red set label-color red]
+        consensus < 2 [set color green set label-color green]
+        consensus >= 2 and consensus < 5 [set color yellow set label-color yellow]
+        consensus >= 5 and consensus < 10 [set color orange set label-color orange]
+        consensus >= 10 [set color red set label-color red]
       )
     ]
     set i i + 1
@@ -398,7 +408,7 @@ Levels
 Levels
 0
 concepts
-6.0
+4.0
 1
 1
 NIL
@@ -433,7 +443,7 @@ SWITCH
 175
 Hide-Concepts
 Hide-Concepts
-0
+1
 1
 -1000
 
@@ -464,11 +474,16 @@ of the concepts in the instructor (server) concept map. As well, concepts that s
 
 ## HOW TO USE IT
 
-To setup the activity, the instructor creates an input file, 'Input-Parameters.txt', that contains the concepts that will be used to develop the concept map. Each concept can contain multiple words and should be separated by a carriage return. 
+To setup the activity, the instructor creates an input file, 'Input-Parameters.txt', that contains the concepts that will be used to develop the concept map. Each concept can contain multiple words and should be separated by a carriage return. The instructor also selects the number of concept levels for the concept map. 
 
-Once the Input-Parameters.txt file is created, press SETUP to read the concepts into the ABM. The concepts will be arranged randomly in the world view: a margins slider is provided to limit the area in the world view where concepts are placed (_i.e._, to avoid placing concepts at the edge of the world view).
+Once the Input-Parameters.txt file is created, press SETUP to read the concepts into the ABM. The concepts will be arranged vertically on the right side of the world view and vertically in the middle of the world view for the instructor. The instructor concepts ("class concepts") show the class consensus for each concept: i.e.,
+
+* position is determined by the mean xcor and ycor of the corresponding student concepts
+* color is determined by the standard deviation of the ycor (level) of the corresponding student concepts (green represents in agreement ... red represents significant disagreement).
 
 To start the activity press the GO button.  Ask students to login using the HubNet client or you can test the activity locally by pressing the LOCAL button in the HubNet Control Center. To see the view in the client interface check the Mirror 2D view on clients checkbox.  
+
+To enable the "consensus tracking" for the class concepts, select "Track" (there must be at least two clients to enable this feature). The instructor may choose to hide the class concepts while the students are rank ordering and clustering the concepts.
 
 Once logged in, the students (clients) can follow the steps proposed by Novak (1984) to build the concept map:
 
@@ -476,6 +491,11 @@ Once logged in, the students (clients) can follow the steps proposed by Novak (1
 2. _Rank Order_: Student can click on a concept and drag it to a new location on the world view.
 3. _Cluster_: Student can click on a concept and drag it to a new location on the world view.
 4. _Link_: _in development_
+
+## NEXT STEPS
+
+1. Student Concept Views: Currently, the student concepts are hiddent from the instructor (server) view. It would be nice to be able to show these student concepts. However, rather than showing all student concepts, it would be useful if the instructor could choose specific concepts (e.g., select a concept that has some disagreement).
+2. Links: This next phase of the model will need to be developed.
 
 ## REFERENCES
 
