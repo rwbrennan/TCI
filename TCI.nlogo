@@ -231,7 +231,7 @@ to create-class-concepts
       set concept-no i + 1
       ;; Store the message-source in user-id now so the server knows which client to address.
       set label item i concept
-      set label-color grey
+      set label-color white
     ]
     set i i + 1
   ]
@@ -278,10 +278,10 @@ to position-class-concepts
       set ycor item 1 c-position i
       let consensus item 2 c-position i
       (ifelse
-        consensus < 2 [set color green set label-color green]
-        consensus >= 2 and consensus < 5 [set color yellow set label-color yellow]
-        consensus >= 5 and consensus < 10 [set color orange set label-color orange]
-        consensus >= 10 [set color red set label-color red]
+        consensus < 2 [set color green]
+        consensus >= 2 and consensus < 5 [set color yellow]
+        consensus >= 5 and consensus < 10 [set color orange]
+        consensus >= 10 [set color red]
       )
     ]
     set i i + 1
@@ -302,11 +302,15 @@ to-report c-position [ concept-number ]
   ;; A list is reported as follows:
   ;;     item 0 = mean xcor
   ;;     item 1 = mean ycor
-  ;;     item 2 = std dev ycor (used to colour the server concept to indicate level of consensus)
+  ;;     item 2 = std dev (used to colour the server concept to indicate level of consensus)
+  ;;              if Cluster is selected, the std dev of the xcor is used (left-right variance)
+  ;;              else, the std dev of ycor is used (up-down or level variance)
   let concept-position []
   set concept-position lput mean [ xcor ] of students with [ concept-no = concept-number ] concept-position
   set concept-position lput mean [ ycor ] of students with [ concept-no = concept-number ] concept-position
-  set concept-position lput sqrt variance [ ycor ] of students with [ concept-no = concept-number ] concept-position
+  ifelse Cluster = TRUE
+  [set concept-position lput sqrt variance [ xcor ] of students with [ concept-no = concept-number ] concept-position]
+  [set concept-position lput sqrt variance [ ycor ] of students with [ concept-no = concept-number ] concept-position]
   report concept-position
 end
 
@@ -376,20 +380,20 @@ NIL
 0
 
 CHOOSER
-12
-199
-104
-244
+9
+295
+101
+340
 ConceptNo
 ConceptNo
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
 1
 
 MONITOR
-11
-301
-95
-346
+8
+397
+92
+442
 Concept xcor
 item 0 c-position ConceptNo
 2
@@ -397,10 +401,10 @@ item 0 c-position ConceptNo
 11
 
 MONITOR
-101
-301
-185
-346
+98
+397
+182
+442
 Concept ycor
 item 1 c-position ConceptNo
 2
@@ -408,10 +412,10 @@ item 1 c-position ConceptNo
 11
 
 MONITOR
-10
-351
-95
-396
+7
+447
+92
+492
 Concept SD
 item 2 c-position ConceptNo
 2
@@ -434,10 +438,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-12
-248
-189
-293
+9
+344
+186
+389
 Concept
 item (ConceptNo - 1) concept
 17
@@ -458,10 +462,21 @@ Track
 SWITCH
 10
 142
-160
+145
 175
 Hide-Concepts
 Hide-Concepts
+1
+1
+-1000
+
+SWITCH
+11
+183
+114
+216
+Cluster
+Cluster
 1
 1
 -1000
@@ -514,8 +529,8 @@ The instructor can view the student concepts by clicking on a class concept. For
 Once logged in, the students (clients) can follow the steps proposed by Novak (1984) to build the concept map:
 
 1. _Focus Question & Concepts_: This step is completed by the instructor during the setup.
-2. _Rank Order_: For this step, students should be asked to drag the concepts to the level bars. The horizontal (left to right) order is not important at this point - students should only concentrate on the vertical order: i.e., The broadest and most inclusive concepts at the top of the map; sub-concepts are placed under broader concepts (Novak, 1984). 
-3. _Cluster_: For this step, students should be asked to cluster the concepts by grouping sub-concepts under general concepts (i.e., consider the horizontal order at this point). 
+2. _Rank Order_: For this step, students should be asked to drag the concepts to the level bars. The horizontal (left to right) order is not important at this point - students should only concentrate on the vertical order: i.e., The broadest and most inclusive concepts at the top of the map; sub-concepts are placed under broader concepts (Novak, 1984). The _Cluster_ switch should be in the "Off" position for this step so that a vertical (rank order) level of consensus is reflected by the class concept colours.
+3. _Cluster_: For this step, students should be asked to cluster the concepts by grouping sub-concepts under general concepts (i.e., consider the horizontal order at this point). The _Cluster_ slider should be moved to the "On" position this step so that a horizontal level of consensus is reflected by the class concept colours.
 4. _Link_: _in development_
 
 ## NEXT STEPS
