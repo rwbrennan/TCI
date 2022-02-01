@@ -6,6 +6,7 @@ breed [ classes class ]
 globals
 [
   selected    ;; identifies the student concept to be moved
+  c-selected
   concepts    ;; number of concepts
   concept     ;; concept list
 ]
@@ -55,6 +56,7 @@ to setup
   ]
   ;; this variable is used to select the concept to drag-and-drop
   set selected nobody
+  set c-selected nobody
 
   ;; calling reset-ticks enables the 'go' button
   reset-ticks
@@ -75,6 +77,14 @@ to go
     ifelse Hide-Concepts
     [ ask classes [set hidden? TRUE ] ]
     [ ask classes [set hidden? FALSE ] ]
+    ifelse mouse-down?
+    [
+      view-student-concepts
+    ]
+    [
+      set c-selected nobody
+      ask students [ set hidden? TRUE ]
+    ]
     tick
   ]
 
@@ -276,6 +286,15 @@ to position-class-concepts
     ]
     set i i + 1
   ]
+end
+
+to view-student-concepts
+  ;; This procedure is used by the instructor (server) to view students associated with a given concept.
+  ;; While the instructor clicks on a class concept, the associated student concepts come into view.
+  let selected-concept 0
+  set c-selected min-one-of classes [distancexy mouse-xcor mouse-ycor]
+  ask c-selected [ set selected-concept concept-no ]
+  ask students with [ concept-no = selected-concept ] [ set hidden? FALSE ]
 end
 
 to-report c-position [ concept-number ]
@@ -490,6 +509,8 @@ The instructor concepts ("class concepts") show the class consensus for each con
 
 To enable the "consensus tracking" for the class concepts, select the _Track_ slider (there must be at least two clients to enable this feature). As noted, the instructor may choose to hide the class concepts while the students are rank ordering and clustering the concepts.
 
+The instructor can view the student concepts by clicking on a class concept. For example, if one of the class concepts shows some disagreement (e.g., it is orange or red), the instructor can click on the concept and see all of the student concepts associated with that concept to determine where the disagreement lies.
+
 Once logged in, the students (clients) can follow the steps proposed by Novak (1984) to build the concept map:
 
 1. _Focus Question & Concepts_: This step is completed by the instructor during the setup.
@@ -499,11 +520,12 @@ Once logged in, the students (clients) can follow the steps proposed by Novak (1
 
 ## NEXT STEPS
 
-* Student Concept Views: Currently, the student concepts are hidden from the instructor (server) view. It would be nice to be able to show these student concepts. However, rather than showing all student concepts, it would be useful if the instructor could choose specific concepts (e.g., select a concept that has some disagreement). It might be possible to use an interface switch (or even better) a mouse click and hold that links to a global variable that is used in a new procedure that un-hides specific students: 
+* Links: This next phase of the model will need to be developed.
+
+Code block example:
 ```
 ask students with [ concept-no = 2 ] [set hidden? FALSE]
 ```
-* Links: This next phase of the model will need to be developed.
 
 ## REFERENCES
 
