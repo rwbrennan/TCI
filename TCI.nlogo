@@ -35,6 +35,8 @@ classes-own
 links-own
 [
   student-id
+  from-concept
+  to-concept
 ]
 
 ;; the STARTUP procedure runs only once at the beginning of the model
@@ -197,18 +199,10 @@ to execute-command [command]
       ]
     ]
     command = "Create-Link" [
-      ask students with [user-id = hubnet-message-source and concept-no = from-no]
-      [
-        create-links-with students with [user-id = hubnet-message-source and concept-no = to-no]
-        ask my-in-links [set student-id hubnet-message-source]
-      ]
-      ;ask links [set student-id hubnet-message-source]
+      execute-create-link
     ]
     command = "Remove-Link" [
-      ;ask links with [in-link-from ] [die]
-      ;show from-no
-      ;show to-no
-      ;; might want to add a "from" and "to" variable to the links so they can be identified
+      execute-remove-link
     ]
   )
 end
@@ -246,12 +240,11 @@ to execute-overrides
   ask links with [student-id != hubnet-message-source] [
     hubnet-send-override hubnet-message-source self "color" [black]
   ]
-end
+  ask links with [student-id = hubnet-message-source] [
+    hubnet-send-override hubnet-message-source self "color" [yellow]
+  ]
 
-;to send-info-to-clients
-;  let from-selected item (From-Concept - 1) concept
-;  ;hubnet-send user-id
-;end
+end
 
 ;;
 ;; Regular Procedures
@@ -329,6 +322,32 @@ to position-class-concepts
       )
     ]
     set i i + 1
+  ]
+end
+
+to execute-create-link
+  ;
+  ask students with [user-id = hubnet-message-source and concept-no = from-no]
+  [
+    let from-number from-no
+    let to-number to-no
+    create-links-with students with [user-id = hubnet-message-source and concept-no = to-no]
+    ask my-in-links
+    [
+      set student-id hubnet-message-source
+      set from-concept from-number
+      set to-concept to-number
+      set color black
+    ]
+  ]
+end
+
+to execute-remove-link
+  ask students with [user-id = hubnet-message-source]
+  [
+    let from-number from-no
+    let to-number to-no
+    ask links with [student-id = hubnet-message-source and from-concept = from-number and to-concept = to-number] [die]
   ]
 end
 
@@ -499,7 +518,7 @@ SWITCH
 132
 Track
 Track
-1
+0
 1
 -1000
 
@@ -513,6 +532,23 @@ Cluster
 1
 1
 -1000
+
+BUTTON
+10
+196
+104
+229
+Clear Grid
+ask patches [set pcolor black]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
