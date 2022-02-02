@@ -6,6 +6,7 @@ breed [ classes class ]
 globals
 [
   selected    ;; identifies the student concept to be moved
+  linked
   c-selected
   concepts    ;; number of concepts
   concept     ;; concept list
@@ -219,11 +220,20 @@ to execute-select-and-drag [snap-xcor snap-ycor]
   ]
 end
 
+
 to execute-move-to [snap-xcor snap-ycor]
   ;; This procedure executes the move once the client drags the mouse to the "Mouse Up"
   ;; (i.e., release mouse) position.
   if selected != nobody [ ask selected [ setxy snap-xcor snap-ycor ] ]
 end
+
+to execute-select-and-link [snap-xcor snap-ycor]
+  if linked = nobody [
+    set linked min-one-of students with [user-id = hubnet-message-source] [distancexy snap-xcor snap-ycor]
+    ask selected [create-link-with linked]
+  ]
+end
+
 
 to execute-overrides
   ;; This procedure sets the overrides for the client views.
@@ -494,7 +504,7 @@ Levels
 Levels
 0
 concepts
-4.0
+3.0
 1
 1
 NIL
@@ -518,7 +528,7 @@ SWITCH
 132
 Track
 Track
-0
+1
 1
 -1000
 
@@ -603,6 +613,9 @@ Once logged in, the students (clients) can follow the steps proposed by Novak (1
 4. _Link_: _in development_
 
 ## NEXT STEPS
+
+### Drag and Drop
+Currently, a global variable is used for selected. However, this creates a conflict when multiple clients are using the model (i.e., each time a client clicks the mouse, a new "selected" is chosen). Can this be changed to a client-local variable? One possible way to do this would be to have a global variable that is a list: each entry would be the global for each client.  
 
 ### Links 
 This next phase of the model will need to be developed.
