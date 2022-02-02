@@ -22,11 +22,19 @@ students-own
               ;; from the client whenever the value changes. However, it will not be able to
               ;; retrieve the value at will unless it is stored it in a variable on the server.
   concept-no  ;; The concept number associated with the turtle.
+  from-no     ;; Originating concept number of a link: i.e., the "from" concept number
+  to-no       ;; Terminating concept number of a link: i.e., the "to" concept number
 ]
 
 classes-own
 [
   concept-no  ;; The concept number associated with the turtle.
+  user-id
+]
+
+links-own
+[
+  student-id
 ]
 
 ;; the STARTUP procedure runs only once at the beginning of the model
@@ -74,9 +82,6 @@ to go
     ;; otherwise, the messages will be created as fast as possible
     ;; and consume your bandwidth.
     if Track and length hubnet-clients-list > 1 [ position-class-concepts ]
-    ifelse Hide-Concepts
-    [ ask classes [set hidden? TRUE ] ]
-    [ ask classes [set hidden? FALSE ] ]
     ifelse mouse-down?
     [
       view-student-concepts
@@ -174,8 +179,38 @@ to execute-command [command]
     ]
     command = "Mouse Up" [
       execute-move-to item 0 hubnet-message item 1 hubnet-message stop
-      ;set selected nobody stop
-    ])
+    ]
+    command = "From-Concept" [
+      set from-no hubnet-message
+      if from-no > 0 and from-no <= length concept
+      [
+        let from-selected item (from-no - 1) concept
+        hubnet-send user-id "FromConcept" from-selected
+      ]
+    ]
+    command = "To-Concept" [
+      set to-no hubnet-message
+      if to-no > 0 and to-no <= length concept
+      [
+        let to-selected item (to-no - 1) concept
+        hubnet-send user-id "ToConcept" to-selected
+      ]
+    ]
+    command = "Create-Link" [
+      ask students with [user-id = hubnet-message-source and concept-no = from-no]
+      [
+        create-links-with students with [user-id = hubnet-message-source and concept-no = to-no]
+        ask my-in-links [set student-id hubnet-message-source]
+      ]
+      ;ask links [set student-id hubnet-message-source]
+    ]
+    command = "Remove-Link" [
+      ;ask links with [in-link-from ] [die]
+      ;show from-no
+      ;show to-no
+      ;; might want to add a "from" and "to" variable to the links so they can be identified
+    ]
+  )
 end
 
 to execute-select-and-drag [snap-xcor snap-ycor]
@@ -205,10 +240,18 @@ to execute-overrides
   hubnet-send-override hubnet-message-source self "hidden?" [FALSE]
   ;;
   ;; Next, all other clients' concepts are hidden from the client's view.
-  ask students with [user-id != hubnet-message-source] [
-  hubnet-send-override hubnet-message-source self "hidden?" [TRUE]
+  ask turtles with [user-id != hubnet-message-source] [
+    hubnet-send-override hubnet-message-source self "hidden?" [TRUE]
+  ]
+  ask links with [student-id != hubnet-message-source] [
+    hubnet-send-override hubnet-message-source self "color" [black]
   ]
 end
+
+;to send-info-to-clients
+;  let from-selected item (From-Concept - 1) concept
+;  ;hubnet-send user-id
+;end
 
 ;;
 ;; Regular Procedures
@@ -232,6 +275,7 @@ to create-class-concepts
       ;; Store the message-source in user-id now so the server knows which client to address.
       set label item i concept
       set label-color white
+      set user-id ""
     ]
     set i i + 1
   ]
@@ -461,20 +505,9 @@ Track
 
 SWITCH
 10
-142
-145
-175
-Hide-Concepts
-Hide-Concepts
-1
-1
--1000
-
-SWITCH
-11
-183
-114
-216
+140
+113
+173
 Cluster
 Cluster
 1
@@ -535,9 +568,13 @@ Once logged in, the students (clients) can follow the steps proposed by Novak (1
 
 ## NEXT STEPS
 
-* Links: This next phase of the model will need to be developed.
+### Links 
+This next phase of the model will need to be developed.
 
-Code block example:
+### Metrics
+* Consensus: It would be interesting to be able to track the degree of consensus (Std Dev) for the concept ranking, clustering, and linking. 
+
+### Code block example:
 ```
 ask students with [ concept-no = 2 ] [set hidden? FALSE]
 ```
@@ -879,6 +916,85 @@ VIEW
 15
 -15
 15
+
+CHOOSER
+20
+18
+158
+63
+From-Concept
+From-Concept
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+0
+
+MONITOR
+20
+70
+178
+119
+FromConcept
+NIL
+3
+1
+
+CHOOSER
+20
+126
+158
+171
+To-Concept
+To-Concept
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+0
+
+MONITOR
+21
+179
+179
+228
+ToConcept
+NIL
+3
+1
+
+INPUTBOX
+20
+236
+249
+296
+Proposition
+NIL
+1
+0
+String
+
+BUTTON
+21
+307
+125
+340
+Create-Link
+NIL
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+
+BUTTON
+130
+307
+242
+340
+Remove-Link
+NIL
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
 
 @#$#@#$#@
 default
