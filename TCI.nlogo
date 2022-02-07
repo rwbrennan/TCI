@@ -5,7 +5,7 @@ breed [ classes class ]
 
 globals
 [
-  selected    ;; identifies the student concept to be moved (REMOVE once linked code is corrected)
+;  selected    ;; identifies the student concept to be moved (REMOVE once linked code is corrected)
   s-index     ;; student index in s-selected list
   s-selected  ;; student concept selected list
   linked
@@ -235,12 +235,12 @@ to execute-move-to [snap-xcor snap-ycor]
   if item index s-selected != nobody [ ask item index s-selected [ setxy snap-xcor snap-ycor ] ]
 end
 
-to execute-select-and-link [snap-xcor snap-ycor]
-  if linked = nobody [
-    set linked min-one-of students with [user-id = hubnet-message-source] [distancexy snap-xcor snap-ycor]
-    ask selected [create-link-with linked]
-  ]
-end
+;to execute-select-and-link [snap-xcor snap-ycor]
+;  if linked = nobody [
+;    set linked min-one-of students with [user-id = hubnet-message-source] [distancexy snap-xcor snap-ycor]
+;    ask selected [create-link-with linked]
+;  ]
+;end
 
 
 to execute-overrides
@@ -353,8 +353,11 @@ to execute-create-link
     ask my-in-links
     [
       set student-id hubnet-message-source
-      set from-concept from-number
-      set to-concept to-number
+      if from-concept = 0
+      [
+        set from-concept from-number
+        set to-concept to-number
+      ]
       set color black
     ]
   ]
