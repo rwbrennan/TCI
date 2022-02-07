@@ -5,9 +5,11 @@ breed [ classes class ]
 
 globals
 [
-  selected    ;; identifies the student concept to be moved
+  selected    ;; identifies the student concept to be moved (REMOVE once linked code is corrected)
+  s-index     ;; student index in s-selected list
+  s-selected  ;; student concept selected list
   linked
-  c-selected
+  c-selected  ;; identifies student concepts in instructor view
   concepts    ;; number of concepts
   concept     ;; concept list
 ]
@@ -22,6 +24,7 @@ students-own
               ;; stores a value (sliders, choosers, and switches). The server will receive a message
               ;; from the client whenever the value changes. However, it will not be able to
               ;; retrieve the value at will unless it is stored it in a variable on the server.
+  index       ;; student index
   concept-no  ;; The concept number associated with the turtle.
   from-no     ;; Originating concept number of a link: i.e., the "from" concept number
   to-no       ;; Terminating concept number of a link: i.e., the "to" concept number
@@ -60,13 +63,13 @@ to setup
   setup-levels
   create-class-concepts
   set Track FALSE
-  ;ask turtles
   ask students
   [
     hubnet-send user-id shape "box 2"
   ]
   ;; this variable is used to select the concept to drag-and-drop
-  set selected nobody
+  set s-index -1
+  set s-selected []
   set c-selected nobody
 
   ;; calling reset-ticks enables the 'go' button
@@ -126,6 +129,8 @@ to create-new-student
   ;; When a new user logs in, create a student turtle for each concept.
   ;; These turtles will store any state on the client (i.e., values of sliders, etc.)
   let i 0
+  set s-index s-index + 1
+  set s-selected lput nobody s-selected
   ;; Each student will be represented by a different base color in the server interface.
   let student-color one-of remove gray base-colors
   let gap (max-pycor - min-pycor) / (length concept + 1)
@@ -138,6 +143,7 @@ to create-new-student
       set color student-color
       set shape "box"
       set concept-no i + 1
+      set index s-index
       ;; Store the message-source in user-id now so the server knows which client to address.
       set user-id hubnet-message-source
       set label (word item i concept " (" user-id ")" )
@@ -177,7 +183,7 @@ to execute-command [command]
   ;; the client releases. The HubNet message contains the xcor and pcor of the mouse.
   (ifelse
     command = "View" [
-      set selected nobody
+      ask students with [user-id = hubnet-message-source] [set s-selected replace-item index s-selected nobody]
       execute-select-and-drag item 0 hubnet-message item 1 hubnet-message stop
     ]
     command = "Mouse Up" [
@@ -213,10 +219,12 @@ to execute-select-and-drag [snap-xcor snap-ycor]
   ;; to the mouse click location, then determines if it is close enough to be selected.
   ;; The selection is limited to concepts that belong to the client: i.e.,
   ;;   students with [user-id = hubnet-message-source]
-  if selected = nobody  [
-    set selected min-one-of students with [user-id = hubnet-message-source] [distancexy snap-xcor snap-ycor]
-    if [distancexy snap-xcor snap-ycor] of selected > 1
-      [set selected nobody]
+  ;;   student concepts are identified by the s-selected list:
+  ;;         [ (student concept for first client) (student concept for the second client) ...]
+  if item index s-selected = nobody  [
+    set s-selected replace-item index s-selected min-one-of students with [user-id = hubnet-message-source] [distancexy snap-xcor snap-ycor]
+    if [distancexy snap-xcor snap-ycor] of item index s-selected > 1
+      [set s-selected replace-item index s-selected nobody]
   ]
 end
 
@@ -224,7 +232,7 @@ end
 to execute-move-to [snap-xcor snap-ycor]
   ;; This procedure executes the move once the client drags the mouse to the "Mouse Up"
   ;; (i.e., release mouse) position.
-  if selected != nobody [ ask selected [ setxy snap-xcor snap-ycor ] ]
+  if item index s-selected != nobody [ ask item index s-selected [ setxy snap-xcor snap-ycor ] ]
 end
 
 to execute-select-and-link [snap-xcor snap-ycor]
@@ -528,7 +536,7 @@ SWITCH
 132
 Track
 Track
-1
+0
 1
 -1000
 
