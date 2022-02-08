@@ -28,6 +28,7 @@ students-own
   concept-no  ;; The concept number associated with the turtle.
   from-no     ;; Originating concept number of a link: i.e., the "from" concept number
   to-no       ;; Terminating concept number of a link: i.e., the "to" concept number
+  s-prop      ;; Proposition for the link
 ]
 
 classes-own
@@ -205,6 +206,9 @@ to execute-command [command]
         hubnet-send user-id "ToConcept" to-selected
       ]
     ]
+    command = "Proposition" [
+      set s-prop hubnet-message
+    ]
     command = "Create-Link" [
       execute-create-link
     ]
@@ -349,6 +353,7 @@ to execute-create-link
   [
     let from-number from-no
     let to-number to-no
+    let link-proposition s-prop
     create-links-with students with [user-id = hubnet-message-source and concept-no = to-no]
     ask my-in-links
     [
@@ -357,6 +362,7 @@ to execute-create-link
       [
         set from-concept from-number
         set to-concept to-number
+        set label link-proposition
       ]
       set color black
     ]
@@ -539,7 +545,7 @@ SWITCH
 132
 Track
 Track
-0
+1
 1
 -1000
 
