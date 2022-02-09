@@ -260,10 +260,14 @@ to execute-overrides
     hubnet-send-override hubnet-message-source self "hidden?" [TRUE]
   ]
   ask links with [student-id != hubnet-message-source] [
-    hubnet-send-override hubnet-message-source self "color" [black]
+    ;hubnet-send-override hubnet-message-source self "color" [black]
+    ;hubnet-send-override hubnet-message-source self "label-color" [black]
+    hubnet-send-override hubnet-message-source self "hidden?" [TRUE]
   ]
   ask links with [student-id = hubnet-message-source] [
     hubnet-send-override hubnet-message-source self "color" [yellow]
+    hubnet-send-override hubnet-message-source self "label-color" [yellow]
+    hubnet-send-override hubnet-message-source self "hidden?" [FALSE]
   ]
 
 end
@@ -364,7 +368,9 @@ to execute-create-link
         set to-concept to-number
         set label link-proposition
       ]
-      set color black
+      set hidden? TRUE
+      ;set color green
+      ;set label-color green
     ]
   ]
 end
@@ -631,11 +637,13 @@ Once logged in, the students (clients) can follow the steps proposed by Novak (1
 
 ## NEXT STEPS
 
-### Drag and Drop
-Currently, a global variable is used for selected. However, this creates a conflict when multiple clients are using the model (i.e., each time a client clicks the mouse, a new "selected" is chosen). Can this be changed to a client-local variable? One possible way to do this would be to have a global variable that is a list: each entry would be the global for each client.  
-
 ### Links 
-This next phase of the model will need to be developed.
+Links can be created by students (clients) using the interface. Possible improvements:
+* See if it is possible to have the links appear as soon as the "create link" button is pressed (currently, the world view needs to be clicked to get this to work). This may require an execute-overrides command that sends the hubnet-message-source.
+* I would be interesting to see if the links can be created by a "drag-and-click" type approach.
+
+### Server Interface Links
+It will be useful to have a means of comparing consensus on the formation of links. I am not sure how this can be done yet.
 
 ### Metrics
 * Consensus: It would be interesting to be able to track the degree of consensus (Std Dev) for the concept ranking, clustering, and linking. 
