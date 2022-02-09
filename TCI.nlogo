@@ -8,7 +8,7 @@ globals
 ;  selected    ;; identifies the student concept to be moved (REMOVE once linked code is corrected)
   s-index     ;; student index in s-selected list
   s-selected  ;; student concept selected list
-  linked
+;  linked
   c-selected  ;; identifies student concepts in instructor view
   concepts    ;; number of concepts
   concept     ;; concept list
@@ -197,6 +197,7 @@ to execute-command [command]
         let from-selected item (from-no - 1) concept
         hubnet-send user-id "FromConcept" from-selected
       ]
+      stop
     ]
     command = "To-Concept" [
       set to-no hubnet-message
@@ -205,15 +206,17 @@ to execute-command [command]
         let to-selected item (to-no - 1) concept
         hubnet-send user-id "ToConcept" to-selected
       ]
+      stop
     ]
     command = "Proposition" [
       set s-prop hubnet-message
+      stop
     ]
     command = "Create-Link" [
-      execute-create-link
+      execute-create-link stop
     ]
     command = "Remove-Link" [
-      execute-remove-link
+      execute-remove-link stop
     ]
   )
 end
@@ -246,30 +249,26 @@ end
 ;  ]
 ;end
 
-
 to execute-overrides
   ;; This procedure sets the overrides for the client views.
   ;;
-  ;; First, the client's concepts are made visible.
+  ;; First, the client's concepts and links are made visible.
   hubnet-send-override hubnet-message-source self "color" [green]
   hubnet-send-override hubnet-message-source self "label-color" [white]
   hubnet-send-override hubnet-message-source self "hidden?" [FALSE]
-  ;;
-  ;; Next, all other clients' concepts are hidden from the client's view.
-  ask turtles with [user-id != hubnet-message-source] [
-    hubnet-send-override hubnet-message-source self "hidden?" [TRUE]
-  ]
-  ask links with [student-id != hubnet-message-source] [
-    ;hubnet-send-override hubnet-message-source self "color" [black]
-    ;hubnet-send-override hubnet-message-source self "label-color" [black]
-    hubnet-send-override hubnet-message-source self "hidden?" [TRUE]
-  ]
   ask links with [student-id = hubnet-message-source] [
     hubnet-send-override hubnet-message-source self "color" [yellow]
     hubnet-send-override hubnet-message-source self "label-color" [yellow]
     hubnet-send-override hubnet-message-source self "hidden?" [FALSE]
   ]
-
+  ;;
+  ;; Next, all other clients' concepts and links are hidden from the client's view.
+  ask turtles with [user-id != hubnet-message-source] [
+    hubnet-send-override hubnet-message-source self "hidden?" [TRUE]
+  ]
+  ask links with [student-id != hubnet-message-source] [
+    hubnet-send-override hubnet-message-source self "hidden?" [TRUE]
+  ]
 end
 
 ;;
@@ -352,7 +351,8 @@ to position-class-concepts
 end
 
 to execute-create-link
-  ;
+  ;; This procedure is used to create a link between two concepts
+  ;; The student (client) specifies the "from concept", the "to concept", and the proposition on the student interface
   ask students with [user-id = hubnet-message-source and concept-no = from-no]
   [
     let from-number from-no
@@ -369,8 +369,6 @@ to execute-create-link
         set label link-proposition
       ]
       set hidden? TRUE
-      ;set color green
-      ;set label-color green
     ]
   ]
 end
@@ -603,37 +601,39 @@ Sub-concepts are placed under broader concepts.
 3. Cluster the concepts by grouping sub-concepts under general concepts.
 4. Link the concepts by lines. Label the lines with one or a few linking words.
 
-The _instructor_ interacts with the model through the HubNet server, and starts the process by creating the focus question and the initial concepts. Students interact with the model through the HubNet client. Each individual student will see a representation of the concept map as it develops, and will have the ability to interact with elements of the model. For example, by moving concepts to different locations on their interface, they will influence the rank order of the concept (concepts higher on the world view are more general than those below) and the clustering of concepts (based on concepts’ proximity to other concepts). As well, students will have the ability to add elements to the model (e.g., new concepts, links between concepts).
+The _instructor_ interacts with the model through the HubNet server, and starts the process by creating the focus question and the initial concepts. Students interact with the model through the HubNet client. Each individual student will see a representation of the concept map as it develops, and will have the ability to interact with elements of the model. For example, by moving concepts to different locations on their interface, students influence the rank order of the concept (concepts higher on the world view are more general than those below) and the clustering of concepts (based on concepts’ proximity to other concepts). As well, students have the ability to add elements to the model (e.g., new concepts, links between concepts).
 
-The instructor will step students through the process of developing the concept map and will encourage discussion on the concept map as it develops. The ABM will use the input from the student clients to build a ‘consensus’ concept map. For example, position of the concepts in individual student maps will serve as weightings for the final position
-of the concepts in the instructor (server) concept map. As well, concepts that show considerable disagreement with respect to rank order or clustering will be highlighted in the instructor concept map, providing further opportunity for discussion.
+The instructor steps students through the process of developing the concept map and  encouragea discussion on the concept map as it develops. The ABM uses input from the student clients to build a ‘consensus’ concept map. For example, position of the concepts in individual student maps serve as weightings for the final position
+of the concepts in the instructor (server) concept map. As well, concepts that show considerable disagreement with respect to rank order or clustering are highlighted in the instructor concept map, providing further opportunity for discussion.
 
 ## HOW TO USE IT
 
 To setup the activity, the instructor creates an input file, 'Input-Parameters.txt', that contains the concepts that will be used to develop the concept map. Each concept can contain multiple words and must be separated by a carriage return. The instructor also selects the number of concept levels for the concept map using the _Levels_ slider. 
 
-When SETUP is pressed, the levels (shown by grey horizontal bars) and the concepts will be placed on the screen.  The concepts are arranged vertically on the world view in the order that they are listed in Input-Parameters.txt. 
+When SETUP is pressed, the levels (shown by grey horizontal bars) and the concepts are placed on the screen.  The concepts are arranged vertically on the world view in the order that they are listed in Input-Parameters.txt. 
 
-* Instructor (server) View: The concepts are listed vertically in the centre of the world view. The _Hide-Concepts_ switch can be used to hide the class concepts from the instructor (server) and student (client) views.
-* Student (client) View: Initially, the student concepts are hidden; once the student clicks on the world view, concepts are listed vertically to the right of the world view.
+* Instructor (server) View: The concepts are listed vertically in the centre of the world view. 
+* Student (client) View: Initially, the individual student concepts are hidden; once the student clicks on the world view, concepts are listed vertically to the right of the world view.
 
-To start the activity press the GO button.  Ask students to login using the HubNet client or you can test the activity locally by pressing the LOCAL button in the HubNet Control Center. To see the view in the client interface check the Mirror 2D view on clients checkbox.  
+To start the activity press the GO button.  Ask students to login using the HubNet client. The instructor may also test the activity locally by pressing the LOCAL button in the HubNet Control Center. To see the view in the client interface check the Mirror 2D view on clients checkbox.  
 
 The instructor concepts ("class concepts") show the class consensus for each concept: i.e.,
 
 * _position_ is determined by the mean xcor and ycor of the corresponding student concepts
 * _colour_ is determined by the standard deviation of the ycor (level) of the corresponding student concepts (green represents in agreement ... red represents significant disagreement).
 
-To enable the "consensus tracking" for the class concepts, select the _Track_ slider (there must be at least two clients to enable this feature). As noted, the instructor may choose to hide the class concepts while the students are rank ordering and clustering the concepts.
+To enable the "consensus tracking" for the class concepts, select the _Track_ slider (there must be at least two clients to enable this feature). 
 
-The instructor can view the student concepts by clicking on a class concept. For example, if one of the class concepts shows some disagreement (e.g., it is orange or red), the instructor can click on the concept and see all of the student concepts associated with that concept to determine where the disagreement lies.
+The instructor can view the student concepts by clicking on a class concept. For example, if one of the class concepts shows some disagreement (e.g., it is orange or red), the instructor can click on the concept and see all of the student concepts associated with that concept to determine where the disagreement lies. The _Cluster_ slider is used determine how the level of disagreement is represented:
+* _Cluster_ Off: The standar deviation of student concept ycor is used (i.e., vertical disagreement). This position should be used for the 'Rank Order' step.
+* _Cluster_ On: The standar deviation of student concept xcor is used (i.e., horizontal disagreement). This position should be used for the 'Cluster' step.
 
 Once logged in, the students (clients) can follow the steps proposed by Novak (1984) to build the concept map:
 
 1. _Focus Question & Concepts_: This step is completed by the instructor during the setup.
-2. _Rank Order_: For this step, students should be asked to drag the concepts to the level bars. The horizontal (left to right) order is not important at this point - students should only concentrate on the vertical order: i.e., The broadest and most inclusive concepts at the top of the map; sub-concepts are placed under broader concepts (Novak, 1984). The _Cluster_ switch should be in the "Off" position for this step so that a vertical (rank order) level of consensus is reflected by the class concept colours.
-3. _Cluster_: For this step, students should be asked to cluster the concepts by grouping sub-concepts under general concepts (i.e., consider the horizontal order at this point). The _Cluster_ slider should be moved to the "On" position this step so that a horizontal level of consensus is reflected by the class concept colours.
-4. _Link_: _in development_
+2. _Rank Order_: For this step, students should be asked to drag the concepts to the level bars. The horizontal (left to right) order is not important at this point - students should only concentrate on the vertical order: i.e., The broadest and most inclusive concepts at the top of the map; sub-concepts are placed under broader concepts (Novak, 1984). The _Cluster_ switch should be in the 'Off' position for this step so that a vertical (rank order) level of consensus is reflected by the class concept colours.
+3. _Cluster_: For this step, students should be asked to cluster the concepts by grouping sub-concepts under general concepts (i.e., consider the horizontal order at this point). The _Cluster_ slider should be moved to the 'On' position this step so that a horizontal level of consensus is reflected by the class concept colours.
+4. _Link_: For this step, the instructor can clear the grid (click the _Clear Grid_ button), then ask the students to create the links between the concepts. To create links, student select a _From-Concept_ and a _To-Concept_ from using the choosers on the client interface. The choosers use the concept number and display the concept in the _FromConcept_ and _ToConcept_ monitors respectively. Student should next type a proposition into the _Proposition_ input (Enter/Return must be pressed to read the proposition). Once the 'from' and 'to' concepts are selected and the proposition is entered, the student should click _Create-Link_. To see the link, the student must click anywhere on the world view. To remove a linke, the appropriate _From-Concept_ and _To-Concept_ chooser should be selected, then the _Remove-Link_ button can be pressed.
 
 ## NEXT STEPS
 
@@ -644,6 +644,13 @@ Links can be created by students (clients) using the interface. Possible improve
 
 ### Server Interface Links
 It will be useful to have a means of comparing consensus on the formation of links. I am not sure how this can be done yet.
+
+### Instructor (Server) Functions
+Should a focus question be added to the 'Input-Parameters.txt' file, then displayed on the world view?
+Should a switch be added to re-draw the grid?
+
+### Student (Client) Functions
+It may be useful to allow students or the instructor to add additional concepts to the world view (see "How to Use it" above).
 
 ### Metrics
 * Consensus: It would be interesting to be able to track the degree of consensus (Std Dev) for the concept ranking, clustering, and linking. 
