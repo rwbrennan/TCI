@@ -625,6 +625,7 @@ The instructor concepts ("class concepts") show the class consensus for each con
 To enable the "consensus tracking" for the class concepts, select the _Track_ slider (there must be at least two clients to enable this feature). 
 
 The instructor can view the student concepts by clicking on a class concept. For example, if one of the class concepts shows some disagreement (e.g., it is orange or red), the instructor can click on the concept and see all of the student concepts associated with that concept to determine where the disagreement lies. The _Cluster_ slider is used determine how the level of disagreement is represented:
+
 * _Cluster_ Off: The standar deviation of student concept ycor is used (i.e., vertical disagreement). This position should be used for the 'Rank Order' step.
 * _Cluster_ On: The standar deviation of student concept xcor is used (i.e., horizontal disagreement). This position should be used for the 'Cluster' step.
 
@@ -639,11 +640,14 @@ Once logged in, the students (clients) can follow the steps proposed by Novak (1
 
 ### Links 
 Links can be created by students (clients) using the interface. Possible improvements:
+
 * See if it is possible to have the links appear as soon as the "create link" button is pressed (currently, the world view needs to be clicked to get this to work). This may require an execute-overrides command that sends the hubnet-message-source.
 * I would be interesting to see if the links can be created by a "drag-and-click" type approach.
 
 ### Server Interface Links
-It will be useful to have a means of comparing consensus on the formation of links. I am not sure how this can be done yet.
+It will be useful to have a means of comparing consensus on the formation of links. 
+
+* Could a similar system to the instructor (server) concepts be used? For example, the instructor (server) links would appear as the most predominant link (e.g., if 3/4 students have a link from concept 1 to concept 2, the instructor link will be shown from concept 1 to concept 2). The link could then be coloured based on the degree of agreement. A mouse click could be used to show all links (this could be differentiated from the current function with a selector).
 
 ### Instructor (Server) Functions
 Should a focus question be added to the 'Input-Parameters.txt' file, then displayed on the world view?
@@ -653,9 +657,14 @@ Should a switch be added to re-draw the grid?
 It may be useful to allow students or the instructor to add additional concepts to the world view (see "How to Use it" above).
 
 ### Metrics
-* Consensus: It would be interesting to be able to track the degree of consensus (Std Dev) for the concept ranking, clustering, and linking. 
+Some features should be added that provide some insight into the _evolution_ of the concept map over time.
+
+* An instructor view plot that tracks the _degree of consensus_. This metric will have to be defined: e.g., average consensus on levels, clustering, links.
+* An indication of which concepts are the most _troublesome_. This metric will have to be defined: e.g., based on the Std Dev, based on the length of time to reach consensus. This metric is important with respect to the notion of identifying _threshold concepts_. 
 
 ### Code block example:
+Here is an example of how to show a code block in the Info tab:
+
 ```
 ask students with [ concept-no = 2 ] [set hidden? FALSE]
 ```

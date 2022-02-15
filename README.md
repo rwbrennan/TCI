@@ -10,30 +10,80 @@ This agent-based model (ABM) is a participatory simulation that will allow instr
 
 The course instructor and students interact with the same model, but from a different perspective. The general approach that will be followed is based on Novak’s steps for building concept maps (Novak, 1984):
 
-1. Identify a focus question that addresses the problem, issues, or knowledge domain to map, and identify 10-20 concepts that are pertinent to the question.
-2. Rank order the concepts. The broadest and most inclusive idea at the top of the map. Sub-concepts are placed under broader concepts.
+1. Identify a focus question that addresses the problem, issues, or knowledge domain to
+map, and identify 10-20 concepts that are pertinent to the question.
+2. Rank order the concepts. The broadest and most inclusive idea at the top of the map.
+Sub-concepts are placed under broader concepts.
 3. Cluster the concepts by grouping sub-concepts under general concepts.
 4. Link the concepts by lines. Label the lines with one or a few linking words.
 
-The _instructor_ interacts with the model through the HubNet server, and starts the process by creating the focus question and the initial concepts. Students interact with the model through the HubNet client. Each individual student will see a representation of the concept map as it develops, and will have the ability to interact with elements of the model. For example, by moving concepts to different locations on their interface, they will influence the rank order of the concept (concepts higher on the world view are more general than those below) and the clustering of concepts (based on concepts’ proximity to other concepts). As well, students will have the ability to add elements to the model (e.g., new concepts, links between concepts).
+The _instructor_ interacts with the model through the HubNet server, and starts the process by creating the focus question and the initial concepts. Students interact with the model through the HubNet client. Each individual student will see a representation of the concept map as it develops, and will have the ability to interact with elements of the model. For example, by moving concepts to different locations on their interface, students influence the rank order of the concept (concepts higher on the world view are more general than those below) and the clustering of concepts (based on concepts’ proximity to other concepts). As well, students have the ability to add elements to the model (e.g., new concepts, links between concepts).
 
-The instructor will step students through the process of developing the concept map and will encourage discussion on the concept map as it develops. The ABM will use the input from the student clients to build a ‘consensus’ concept map. For example, position of the concepts in individual student maps will serve as weightings for the final position
-of the concepts in the instructor (server) concept map. As well, concepts that show considerable disagreement with respect to rank order or clustering will be highlighted in the instructor concept map, providing further opportunity for discussion.
+The instructor steps students through the process of developing the concept map and  encouragea discussion on the concept map as it develops. The ABM uses input from the student clients to build a ‘consensus’ concept map. For example, position of the concepts in individual student maps serve as weightings for the final position
+of the concepts in the instructor (server) concept map. As well, concepts that show considerable disagreement with respect to rank order or clustering are highlighted in the instructor concept map, providing further opportunity for discussion.
 
 ## HOW TO USE IT
 
-To setup the activity, the instructor creates an input file, 'Input-Parameters.txt', that contains the concepts that will be used to develop the concept map. Each concept can contain multiple words and should be separated by a carriage return.
+To setup the activity, the instructor creates an input file, 'Input-Parameters.txt', that contains the concepts that will be used to develop the concept map. Each concept can contain multiple words and must be separated by a carriage return. The instructor also selects the number of concept levels for the concept map using the _Levels_ slider.
 
-Once the Input-Parameters.txt file is created, press SETUP to read the concepts into the ABM. The concepts will be arranged randomly in the world view: a margins slider is provided to limit the area in the world view where concepts are placed (_i.e._, to avoid placing concepts at the edge of the world view).
+When SETUP is pressed, the levels (shown by grey horizontal bars) and the concepts are placed on the screen.  The concepts are arranged vertically on the world view in the order that they are listed in Input-Parameters.txt.
 
-To start the activity press the GO button.  Ask students to login using the HubNet client or you can test the activity locally by pressing the LOCAL button in the HubNet Control Center. To see the view in the client interface check the Mirror 2D view on clients checkbox.  
+* Instructor (server) View: The concepts are listed vertically in the centre of the world view.
+* Student (client) View: Initially, the individual student concepts are hidden; once the student clicks on the world view, concepts are listed vertically to the right of the world view.
+
+To start the activity press the GO button.  Ask students to login using the HubNet client. The instructor may also test the activity locally by pressing the LOCAL button in the HubNet Control Center. To see the view in the client interface check the Mirror 2D view on clients checkbox.  
+
+The instructor concepts ("class concepts") show the class consensus for each concept: i.e.,
+
+* _position_ is determined by the mean xcor and ycor of the corresponding student concepts
+* _colour_ is determined by the standard deviation of the ycor (level) of the corresponding student concepts (green represents in agreement ... red represents significant disagreement).
+
+To enable the "consensus tracking" for the class concepts, select the _Track_ slider (there must be at least two clients to enable this feature).
+
+The instructor can view the student concepts by clicking on a class concept. For example, if one of the class concepts shows some disagreement (e.g., it is orange or red), the instructor can click on the concept and see all of the student concepts associated with that concept to determine where the disagreement lies. The _Cluster_ slider is used determine how the level of disagreement is represented:
+
+* _Cluster_ Off: The standar deviation of student concept ycor is used (i.e., vertical disagreement). This position should be used for the 'Rank Order' step.
+* _Cluster_ On: The standar deviation of student concept xcor is used (i.e., horizontal disagreement). This position should be used for the 'Cluster' step.
 
 Once logged in, the students (clients) can follow the steps proposed by Novak (1984) to build the concept map:
 
 1. _Focus Question & Concepts_: This step is completed by the instructor during the setup.
-2. _Rank Order_: Student can click on a concept and drag it to a new location on the world view.
-3. _Cluster_: Student can click on a concept and drag it to a new location on the world view.
-4. _Link_: _in development_
+2. _Rank Order_: For this step, students should be asked to drag the concepts to the level bars. The horizontal (left to right) order is not important at this point - students should only concentrate on the vertical order: i.e., The broadest and most inclusive concepts at the top of the map; sub-concepts are placed under broader concepts (Novak, 1984). The _Cluster_ switch should be in the 'Off' position for this step so that a vertical (rank order) level of consensus is reflected by the class concept colours.
+3. _Cluster_: For this step, students should be asked to cluster the concepts by grouping sub-concepts under general concepts (i.e., consider the horizontal order at this point). The _Cluster_ slider should be moved to the 'On' position this step so that a horizontal level of consensus is reflected by the class concept colours.
+4. _Link_: For this step, the instructor can clear the grid (click the _Clear Grid_ button), then ask the students to create the links between the concepts. To create links, student select a _From-Concept_ and a _To-Concept_ from using the choosers on the client interface. The choosers use the concept number and display the concept in the _FromConcept_ and _ToConcept_ monitors respectively. Student should next type a proposition into the _Proposition_ input (Enter/Return must be pressed to read the proposition). Once the 'from' and 'to' concepts are selected and the proposition is entered, the student should click _Create-Link_. To see the link, the student must click anywhere on the world view. To remove a linke, the appropriate _From-Concept_ and _To-Concept_ chooser should be selected, then the _Remove-Link_ button can be pressed.
+
+## NEXT STEPS
+
+### Links
+Links can be created by students (clients) using the interface. Possible improvements:
+
+* See if it is possible to have the links appear as soon as the "create link" button is pressed (currently, the world view needs to be clicked to get this to work). This may require an execute-overrides command that sends the hubnet-message-source.
+* I would be interesting to see if the links can be created by a "drag-and-click" type approach.
+
+### Server Interface Links
+It will be useful to have a means of comparing consensus on the formation of links.
+
+* Could a similar system to the instructor (server) concepts be used? For example, the instructor (server) links would appear as the most predominant link (e.g., if 3/4 students have a link from concept 1 to concept 2, the instructor link will be shown from concept 1 to concept 2). The link could then be coloured based on the degree of agreement. A mouse click could be used to show all links (this could be differentiated from the current function with a selector).
+
+### Instructor (Server) Functions
+Should a focus question be added to the 'Input-Parameters.txt' file, then displayed on the world view?
+Should a switch be added to re-draw the grid?
+
+### Student (Client) Functions
+It may be useful to allow students or the instructor to add additional concepts to the world view (see "How to Use it" above).
+
+### Metrics
+Some features should be added that provide some insight into the _evolution_ of the concept map over time.
+
+* An instructor view plot that tracks the _degree of consensus_. This metric will have to be defined: e.g., average consensus on levels, clustering, links.
+* An indication of which concepts are the most _troublesome_. This metric will have to be defined: e.g., based on the Std Dev, based on the length of time to reach consensus. This metric is important with respect to the notion of identifying _threshold concepts_.
+
+### Code block example:
+Here is an example of how to show a code block in the Info tab:
+
+```
+ask students with [ concept-no = 2 ] [set hidden? FALSE]
+```
 
 ## REFERENCES
 
@@ -45,4 +95,13 @@ Meyer, J., & Land, R. (2003). _Threshold concepts and troublesome knowledge: lin
 
 Novak, J. D. (1984). _Learning how to learn_. New York: Cambridge University Press.
 
-Waggoner, J., Carline, J. D., & Durning, S. J. (2016). Is there a consensus on consensus methodology? descriptions and recommendations for future consensus research. _Academic medicine_, 91(5), 663–668.
+Waggoner, J., Carline, J. D., & Durning, S. J. (2016). Is there a consensus on consensus
+methodology? descriptions and recommendations for future consensus research. _Academic
+medicine_, 91(5), 663–668.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2022 Robert W. Brennan.
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+<!-- 2021 -->
