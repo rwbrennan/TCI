@@ -438,11 +438,11 @@ end
 GRAPHICS-WINDOW
 200
 10
-871
-682
+931
+742
 -1
 -1
-21.4
+23.323
 1
 10
 1
@@ -589,10 +589,10 @@ NIL
 1
 
 PLOT
-877
-12
-1166
-162
+938
+10
+1227
+160
 Concept Consensus
 Ticks
 Consensus
@@ -696,8 +696,8 @@ Some features should be added that provide some insight into the _evolution_ of 
 reset-timer ;; use this to reset the time to 0 at the start of the activity
 timer       ;; use this to report on the time (in seconds) when the data is collected
 ```
+* This would be worth trying first with the plot: i.e., use an explicit plot procedure in the code.
 * The Rapid Miner tool is worth exploring for data analysis.
-
 * An indication of which concepts are the most _troublesome_. This metric will have to be defined: e.g., based on the Std Dev, based on the length of time to reach consensus. This metric is important with respect to the notion of identifying _threshold concepts_. 
 
 ### Code block example:
@@ -1026,7 +1026,7 @@ need-to-manually-make-preview-for-this-model
 VIEW
 252
 10
-892
+983
 650
 0
 0
