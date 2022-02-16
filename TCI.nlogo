@@ -55,6 +55,7 @@ to setup
   clear-drawing
   clear-output
   clear-turtles
+  clear-all-plots
   ;; during setup you do not want to kill all the turtles
   ;; (if you do you'll lose any information you have about the clients)
   ;; so reset any variables you want to default values, and let the clients
@@ -75,6 +76,7 @@ to setup
 
   ;; calling reset-ticks enables the 'go' button
   reset-ticks
+  reset-timer
 end
 
 to go
@@ -97,6 +99,7 @@ to go
       set c-selected nobody
       ask students [ set hidden? TRUE ]
     ]
+    plot-consensus
     tick
   ]
 
@@ -393,6 +396,20 @@ to view-student-concepts
   ask students with [ concept-no = selected-concept ] [ set hidden? FALSE ]
 end
 
+to plot-consensus
+  ;; This procedure is used to plot concept consensus vs time
+  ;; A range of 0 - 60 seconds is used. Once the time reaches 60 seconds, the plot scrolls to the
+  ;; right with a 60 second interval.
+  set-current-plot "Concept Consensus"
+  ifelse timer <= 60
+  [set-plot-x-range 0 60]
+  [set-plot-x-range timer - 60 timer]
+  set-current-plot-pen "Level"
+  plotxy timer c-consensus 0
+  set-current-plot-pen "Cluster"
+  plotxy timer c-consensus 1
+end
+
 to-report c-position [ concept-number ]
   ;; This procedure is used to calculate the mean position of all students' with concept = concept-number
   ;; A list is reported as follows:
@@ -594,18 +611,18 @@ PLOT
 1227
 160
 Concept Consensus
-Ticks
+Time
 Consensus
 0.0
-100.0
+60.0
 0.0
 10.0
 true
 true
 "" ""
 PENS
-"Level" 1.0 0 -14070903 true "" "plot c-consensus 0"
-"Cluster" 1.0 0 -12087248 true "" "plot c-consensus 1"
+"Level" 1.0 0 -14070903 true "" ""
+"Cluster" 1.0 0 -12087248 true "" ""
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -689,14 +706,8 @@ It may be useful to allow students or the instructor to add additional concepts 
 ### Metrics
 Some features should be added that provide some insight into the _evolution_ of the concept map over time.
 
-* An instructor view plot that tracks the _degree of consensus_. Currently, a plot has been created that shows the standard deviation over all concept positions. 
-* The _degree of consensus_ could also be collected for the individual concepts. For the data collection, this should be done on a time basis: i.e., 
-
-```
-reset-timer ;; use this to reset the time to 0 at the start of the activity
-timer       ;; use this to report on the time (in seconds) when the data is collected
-```
-* This would be worth trying first with the plot: i.e., use an explicit plot procedure in the code.
+* An instructor view plot that tracks the _degree of consensus_. Currently, a plot has been created that shows the standard deviation over all concept positions _vs._ time. 'scroll back' and 'scroll forwar' buttons could be placed under the plot to allow the instructor to look back at consensus.
+* The _degree of consensus_ could also be collected for the individual concepts. 
 * The Rapid Miner tool is worth exploring for data analysis.
 * An indication of which concepts are the most _troublesome_. This metric will have to be defined: e.g., based on the Std Dev, based on the length of time to reach consensus. This metric is important with respect to the notion of identifying _threshold concepts_. 
 
