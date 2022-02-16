@@ -303,6 +303,8 @@ to setup-input-parameters
   ;; This procedure reads the set of concepts from the input file.
   ;; Each concept is a line (i.e., single or multiple words) separated by carriage returns.
   file-open "Input-Parameters.txt"
+  ;; First, read the focus question and put it at the top of the world view
+  ask patch (max-pxcor - 1) 14 [set plabel (word "Concept Q: " file-read-line) set plabel-color yellow]
   set concept []
   while [ not file-at-end? ]
   [
@@ -408,6 +410,27 @@ to-report c-position [ concept-number ]
   report concept-position
 end
 
+to-report c-consensus [ consensus-type ]
+  ;; This procedure is used to report on the concept consensus (agreement between the students).
+  ;; The consensus is calculated by first summing the variances for each of the concepts, then calculating the
+  ;; standard deviation. Note: for independent random variables, the variance of their sums or differences is the sum of
+  ;; their variances.
+  ;; **** NOTE **** use the "Cluster" global to determine xcor vs ycor variance?
+  let c-variance 0
+  if Track and length hubnet-clients-list > 1
+  [
+    let i 1
+    while [i <= concepts]
+    [
+      ifelse consensus-type = 0
+      [set c-variance c-variance + variance [ ycor ] of students with [ concept-no = i ]]
+      [set c-variance c-variance + variance [ xcor ] of students with [ concept-no = i ]]
+      set i i + 1
+    ]
+  ]
+  report sqrt c-variance
+end
+
 to-report random-between [ min-num max-num ]
     report random-float (max-num - min-num) + min-num
 end
@@ -481,40 +504,7 @@ CHOOSER
 ConceptNo
 ConceptNo
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-1
-
-MONITOR
-8
-397
-92
-442
-Concept xcor
-item 0 c-position ConceptNo
-2
-1
-11
-
-MONITOR
-98
-397
-182
-442
-Concept ycor
-item 1 c-position ConceptNo
-2
-1
-11
-
-MONITOR
-7
-447
-92
-492
-Concept SD
-item 2 c-position ConceptNo
-2
-1
-11
+3
 
 SLIDER
 10
@@ -544,9 +534,9 @@ item (ConceptNo - 1) concept
 
 SWITCH
 10
-99
+140
 113
-132
+173
 Track
 Track
 1
@@ -555,9 +545,9 @@ Track
 
 SWITCH
 10
-140
+181
 113
-173
+214
 Cluster
 Cluster
 1
@@ -566,9 +556,9 @@ Cluster
 
 BUTTON
 10
-196
-104
-229
+97
+93
+130
 Clear Grid
 ask patches [set pcolor black]
 NIL
@@ -580,6 +570,42 @@ NIL
 NIL
 NIL
 1
+
+BUTTON
+99
+97
+182
+130
+Draw Grid
+setup-levels
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+PLOT
+877
+12
+1166
+162
+Concept Consensus
+Ticks
+Consensus
+0.0
+100.0
+0.0
+10.0
+true
+true
+"" ""
+PENS
+"Level" 1.0 0 -14070903 true "" "plot c-consensus 0"
+"Cluster" 1.0 0 -12087248 true "" "plot c-consensus 1"
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -608,9 +634,14 @@ of the concepts in the instructor (server) concept map. As well, concepts that s
 
 ## HOW TO USE IT
 
-To setup the activity, the instructor creates an input file, 'Input-Parameters.txt', that contains the concepts that will be used to develop the concept map. Each concept can contain multiple words and must be separated by a carriage return. The instructor also selects the number of concept levels for the concept map using the _Levels_ slider. 
+To setup the activity, the instructor creates an input file, 'Input-Parameters.txt', that contains the concept question and the concepts that will be used to develop the concept map. The structure of 'Input-Parameters.txt' is as follows:
 
-When SETUP is pressed, the levels (shown by grey horizontal bars) and the concepts are placed on the screen.  The concepts are arranged vertically on the world view in the order that they are listed in Input-Parameters.txt. 
+1. Concept Question
+2. Concept #1
+3. Concept #2
+4. ...
+
+When SETUP is pressed, the levels (defined using the _Levels_ slider, shown by grey horizontal bars) and the concepts are placed on the screen.  The concepts are arranged vertically on the world view in the order that they are listed in Input-Parameters.txt. The number of levels can be changed by clicking "Clear Grid", selecting a new number of levels, then clicking "Draw Grid".
 
 * Instructor (server) View: The concepts are listed vertically in the centre of the world view. 
 * Student (client) View: Initially, the individual student concepts are hidden; once the student clicks on the world view, concepts are listed vertically to the right of the world view.
@@ -650,8 +681,7 @@ It will be useful to have a means of comparing consensus on the formation of lin
 * Could a similar system to the instructor (server) concepts be used? For example, the instructor (server) links would appear as the most predominant link (e.g., if 3/4 students have a link from concept 1 to concept 2, the instructor link will be shown from concept 1 to concept 2). The link could then be coloured based on the degree of agreement. A mouse click could be used to show all links (this could be differentiated from the current function with a selector).
 
 ### Instructor (Server) Functions
-Should a focus question be added to the 'Input-Parameters.txt' file, then displayed on the world view?
-Should a switch be added to re-draw the grid?
+
 
 ### Student (Client) Functions
 It may be useful to allow students or the instructor to add additional concepts to the world view (see "How to Use it" above).
@@ -659,7 +689,15 @@ It may be useful to allow students or the instructor to add additional concepts 
 ### Metrics
 Some features should be added that provide some insight into the _evolution_ of the concept map over time.
 
-* An instructor view plot that tracks the _degree of consensus_. This metric will have to be defined: e.g., average consensus on levels, clustering, links.
+* An instructor view plot that tracks the _degree of consensus_. Currently, a plot has been created that shows the standard deviation over all concept positions. 
+* The _degree of consensus_ could also be collected for the individual concepts. For the data collection, this should be done on a time basis: i.e., 
+
+```
+reset-timer ;; use this to reset the time to 0 at the start of the activity
+timer       ;; use this to report on the time (in seconds) when the data is collected
+```
+* The Rapid Miner tool is worth exploring for data analysis.
+
 * An indication of which concepts are the most _troublesome_. This metric will have to be defined: e.g., based on the Std Dev, based on the length of time to reach consensus. This metric is important with respect to the notion of identifying _threshold concepts_. 
 
 ### Code block example:
