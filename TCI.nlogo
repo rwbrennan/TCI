@@ -64,6 +64,7 @@ to setup
   setup-input-parameters
   setup-levels
   create-class-concepts
+  setup-consensus-plots
   set Track FALSE
   ask students
   [
@@ -99,7 +100,8 @@ to go
       set c-selected nobody
       ask students [ set hidden? TRUE ]
     ]
-    plot-consensus
+    plot-level-consensus
+    plot-cluster-consensus
     tick
   ]
 
@@ -396,18 +398,73 @@ to view-student-concepts
   ask students with [ concept-no = selected-concept ] [ set hidden? FALSE ]
 end
 
-to plot-consensus
-  ;; This procedure is used to plot concept consensus vs time
+to setup-consensus-plots
+  ;; This procedure is used to setup the consensus plots based on the number of concepts.
+  ;; A temporary pen is created for each concept (C1, C2, C3, etc.). These temporary pens
+  ;; are referenced by the plot commands.
+  ;; Notes: (1) 14 pen colours are available with this approach (expand for more concepts?)
+  ;;        (2) Rather than "C1" etc., the concept name could be used
+  set-current-plot "Level Consensus"
+  let i 1
+  while [i <= concepts]
+  [
+    create-temporary-plot-pen (word "C" i)
+    set-plot-pen-color ((i - 1) * 10 + 5)
+    set i i + 1
+  ]
+  set-current-plot "Cluster Consensus"
+  set i 1
+  while [i <= concepts]
+  [
+    create-temporary-plot-pen (word "C" i)
+    set-plot-pen-color ((i - 1) * 10 + 5)
+    set i i + 1
+  ]
+end
+
+to plot-level-consensus
+  ;; This procedure is used to plot concept level consensus vs time
   ;; A range of 0 - 60 seconds is used. Once the time reaches 60 seconds, the plot scrolls to the
   ;; right with a 60 second interval.
-  set-current-plot "Concept Consensus"
+  set-current-plot "Level Consensus"
   ifelse timer <= 60
   [set-plot-x-range 0 60]
   [set-plot-x-range timer - 60 timer]
-  set-current-plot-pen "Level"
-  plotxy timer c-consensus 0
-  set-current-plot-pen "Cluster"
-  plotxy timer c-consensus 1
+  let i 1
+  let consensus 0
+  if Track and length hubnet-clients-list > 1
+  [
+    while [i <= concepts]
+    [
+      set-current-plot-pen (word "C" i)
+      set consensus sqrt (variance [ ycor ] of students with [ concept-no = i ])
+      plotxy timer consensus
+      set i i + 1
+    ]
+  ]
+end
+
+to plot-cluster-consensus
+  ;; This procedure is used to plot cluster concept consensus vs time
+  ;; A range of 0 - 60 seconds is used. Once the time reaches 60 seconds, the plot scrolls to the
+  ;; right with a 60 second interval.
+  set-current-plot "Cluster Consensus"
+  ifelse timer <= 60
+  [set-plot-x-range 0 60]
+  [set-plot-x-range timer - 60 timer]
+  let i 1
+  let consensus 0
+  if Track and length hubnet-clients-list > 1
+  [
+    while [i <= concepts]
+    [
+      set-current-plot-pen (word "C" i)
+      set-plot-pen-color (i * 10 + 5)
+      set consensus sqrt (variance [ xcor ] of students with [ concept-no = i ])
+      plotxy timer consensus
+      set i i + 1
+    ]
+  ]
 end
 
 to-report c-position [ concept-number ]
@@ -567,7 +624,7 @@ SWITCH
 214
 Cluster
 Cluster
-1
+0
 1
 -1000
 
@@ -606,11 +663,11 @@ NIL
 1
 
 PLOT
-938
+941
 10
-1227
-160
-Concept Consensus
+1224
+243
+Level Consensus
 Time
 Consensus
 0.0
@@ -621,8 +678,23 @@ true
 true
 "" ""
 PENS
-"Level" 1.0 0 -14070903 true "" ""
-"Cluster" 1.0 0 -12087248 true "" ""
+
+PLOT
+941
+248
+1224
+482
+Cluster Consensus
+Time
+Consensus
+0.0
+60.0
+0.0
+10.0
+true
+true
+"" ""
+PENS
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -674,8 +746,10 @@ To enable the "consensus tracking" for the class concepts, select the _Track_ sl
 
 The instructor can view the student concepts by clicking on a class concept. For example, if one of the class concepts shows some disagreement (e.g., it is orange or red), the instructor can click on the concept and see all of the student concepts associated with that concept to determine where the disagreement lies. The _Cluster_ slider is used determine how the level of disagreement is represented:
 
-* _Cluster_ Off: The standar deviation of student concept ycor is used (i.e., vertical disagreement). This position should be used for the 'Rank Order' step.
-* _Cluster_ On: The standar deviation of student concept xcor is used (i.e., horizontal disagreement). This position should be used for the 'Cluster' step.
+* _Cluster_ Off: The standard deviation of student concept ycor is used (i.e., vertical disagreement). This position should be used for the 'Rank Order' step.
+* _Cluster_ On: The standard deviation of student concept xcor is used (i.e., horizontal disagreement). This position should be used for the 'Cluster' step.
+
+As well, the instructor can monitor the degree of student 'level consensus' (rank order agreement) and 'cluster consensus' (horizontal or cluster agreement) using the _Level Consensus_ and the _Cluster Consensus_ plots.
 
 Once logged in, the students (clients) can follow the steps proposed by Novak (1984) to build the concept map:
 
@@ -698,7 +772,12 @@ It will be useful to have a means of comparing consensus on the formation of lin
 * Could a similar system to the instructor (server) concepts be used? For example, the instructor (server) links would appear as the most predominant link (e.g., if 3/4 students have a link from concept 1 to concept 2, the instructor link will be shown from concept 1 to concept 2). The link could then be coloured based on the degree of agreement. A mouse click could be used to show all links (this could be differentiated from the current function with a selector).
 
 ### Instructor (Server) Functions
+I would be useful to have some controls on the instructor (server) interface for data monitoring and collection.
 
+* buttons could be added to allow the instructor to scroll back and forward in time with the consensus plots.
+* buttons could be added to start/stop data collection for the consensus data; once started, the data would be saved to a file for external analysis.
+
+Rather than a drop down and monitor for concept number _vs._ concept name, it might be best to just have a monitor output that lists the concepts: e.g., "C1: History", "C2: Time", etc.
 
 ### Student (Client) Functions
 It may be useful to allow students or the instructor to add additional concepts to the world view (see "How to Use it" above).
@@ -706,8 +785,8 @@ It may be useful to allow students or the instructor to add additional concepts 
 ### Metrics
 Some features should be added that provide some insight into the _evolution_ of the concept map over time.
 
-* An instructor view plot that tracks the _degree of consensus_. Currently, a plot has been created that shows the standard deviation over all concept positions _vs._ time. 'scroll back' and 'scroll forwar' buttons could be placed under the plot to allow the instructor to look back at consensus.
-* The _degree of consensus_ could also be collected for the individual concepts. 
+* An instructor view plot that tracks the _degree of consensus_. Currently, two plots have been created that show the standard deviation of the concept positions _vs._ time. 'scroll back' and 'scroll forwar' buttons could be placed under the plot to allow the instructor to look back at consensus.
+* The _degree of consensus_ could also be collected for the individual concepts for external analysis. 
 * The Rapid Miner tool is worth exploring for data analysis.
 * An indication of which concepts are the most _troublesome_. This metric will have to be defined: e.g., based on the Std Dev, based on the length of time to reach consensus. This metric is important with respect to the notion of identifying _threshold concepts_. 
 
