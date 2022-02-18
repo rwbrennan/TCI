@@ -12,6 +12,7 @@ globals
   c-selected  ;; identifies student concepts in instructor view
   concepts    ;; number of concepts
   concept     ;; concept list
+  c-record   ;; if TRUE, save consensus data
 ]
 
 students-own
@@ -66,6 +67,7 @@ to setup
   create-class-concepts
   setup-consensus-plots
   set Track FALSE
+  set c-record FALSE
   ask students
   [
     hubnet-send user-id shape "box 2"
@@ -439,6 +441,7 @@ to plot-level-consensus
       set-current-plot-pen (word "C" i)
       set consensus sqrt (variance [ ycor ] of students with [ concept-no = i ])
       plotxy timer consensus
+      if c-record = TRUE [record-consensus-data (word "LC" i) timer consensus]
       set i i + 1
     ]
   ]
@@ -462,9 +465,30 @@ to plot-cluster-consensus
       set-plot-pen-color (i * 10 + 5)
       set consensus sqrt (variance [ xcor ] of students with [ concept-no = i ])
       plotxy timer consensus
+      if c-record = TRUE [record-consensus-data (word "CC" i) timer consensus]
       set i i + 1
     ]
   ]
+end
+
+to setup-consensus-data [record-mode]
+  ;
+  ifelse record-mode = TRUE
+  [
+    file-open "Output-Consensus.txt"
+    set c-record TRUE
+  ]
+  [
+    file-close
+    set c-record FALSE
+  ]
+end
+
+to record-consensus-data [what time variable]
+  ;
+  file-print what
+  file-print time
+  file-print variable
 end
 
 to-report c-position [ concept-number ]
@@ -696,6 +720,40 @@ true
 "" ""
 PENS
 
+BUTTON
+943
+495
+1043
+528
+Start Recording
+setup-consensus-data TRUE
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+1051
+495
+1151
+528
+Stop Recording
+setup-consensus-data FALSE
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -742,7 +800,7 @@ The instructor concepts ("class concepts") show the class consensus for each con
 * _position_ is determined by the mean xcor and ycor of the corresponding student concepts
 * _colour_ is determined by the standard deviation of the ycor (level) of the corresponding student concepts (green represents in agreement ... red represents significant disagreement).
 
-To enable the "consensus tracking" for the class concepts, select the _Track_ slider (there must be at least two clients to enable this feature). 
+To enable the "consensus tracking" for the class concepts, select the _Track_ slider (there must be at least two clients to enable this feature). Once tracking is enabled, the consensus data can be recorded by selecting _Start Recording_. 
 
 The instructor can view the student concepts by clicking on a class concept. For example, if one of the class concepts shows some disagreement (e.g., it is orange or red), the instructor can click on the concept and see all of the student concepts associated with that concept to determine where the disagreement lies. The _Cluster_ slider is used determine how the level of disagreement is represented:
 
