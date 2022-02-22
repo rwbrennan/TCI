@@ -472,7 +472,7 @@ to plot-cluster-consensus
 end
 
 to setup-consensus-data [record-mode]
-  ;
+  ;; This procedure is used to open/close the consensus data file
   ifelse record-mode = TRUE
   [
     file-open "Output-Consensus.txt"
@@ -485,7 +485,7 @@ to setup-consensus-data [record-mode]
 end
 
 to record-consensus-data [what time variable]
-  ;
+  ;; This procedure is used to record consensus data
   file-print what
   file-print time
   file-print variable
@@ -648,7 +648,7 @@ SWITCH
 214
 Cluster
 Cluster
-0
+1
 1
 -1000
 
@@ -833,9 +833,19 @@ It will be useful to have a means of comparing consensus on the formation of lin
 I would be useful to have some controls on the instructor (server) interface for data monitoring and collection.
 
 * buttons could be added to allow the instructor to scroll back and forward in time with the consensus plots.
-* buttons could be added to start/stop data collection for the consensus data; once started, the data would be saved to a file for external analysis.
 
 Rather than a drop down and monitor for concept number _vs._ concept name, it might be best to just have a monitor output that lists the concepts: e.g., "C1: History", "C2: Time", etc.
+
+Show the student links in the instructor interface:
+
+```
+;; identify the number of students
+length hubnet-client-list 
+;; count the number of links between concepts
+count links with [from-concept = 1 and to-concept = 2]
+;; create links between concepts on instructor view
+;; color based on the degree of consensus (proportion of total students)
+```
 
 ### Student (Client) Functions
 It may be useful to allow students or the instructor to add additional concepts to the world view (see "How to Use it" above).
@@ -844,7 +854,7 @@ It may be useful to allow students or the instructor to add additional concepts 
 Some features should be added that provide some insight into the _evolution_ of the concept map over time.
 
 * An instructor view plot that tracks the _degree of consensus_. Currently, two plots have been created that show the standard deviation of the concept positions _vs._ time. 'scroll back' and 'scroll forwar' buttons could be placed under the plot to allow the instructor to look back at consensus.
-* The _degree of consensus_ could also be collected for the individual concepts for external analysis. 
+* The _degree of consensus_ can also be collected for the individual concepts for external analysis. 
 * The Rapid Miner tool is worth exploring for data analysis.
 * An indication of which concepts are the most _troublesome_. This metric will have to be defined: e.g., based on the Std Dev, based on the length of time to reach consensus. This metric is important with respect to the notion of identifying _threshold concepts_. 
 
