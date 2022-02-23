@@ -63,6 +63,7 @@ to setup
   ;; know about the change if the value appears anywhere in their interface.
 
   setup-input-parameters
+  setup-concept-list
   setup-levels
   create-class-concepts
   setup-consensus-plots
@@ -484,6 +485,17 @@ to setup-consensus-data [record-mode]
   ]
 end
 
+to setup-concept-list
+  ;; This procedure is used to print the list of concepts to the output area on
+  ;; the instructor (server) interface
+  let i 0
+  while [i < concepts]
+  [
+    output-print (word "C" (i + 1) ": " item i concept)
+    set i i + 1
+  ]
+end
+
 to record-consensus-data [what time variable]
   ;; This procedure is used to record consensus data
   file-print what
@@ -528,6 +540,7 @@ to-report c-consensus [ consensus-type ]
   ]
   report sqrt c-variance
 end
+
 
 to-report random-between [ min-num max-num ]
     report random-float (max-num - min-num) + min-num
@@ -594,16 +607,6 @@ NIL
 NIL
 0
 
-CHOOSER
-9
-295
-101
-340
-ConceptNo
-ConceptNo
-1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-3
-
 SLIDER
 10
 58
@@ -618,17 +621,6 @@ concepts
 1
 NIL
 HORIZONTAL
-
-MONITOR
-9
-344
-186
-389
-Concept
-item (ConceptNo - 1) concept
-17
-1
-11
 
 SWITCH
 10
@@ -754,6 +746,23 @@ NIL
 NIL
 1
 
+OUTPUT
+9
+249
+197
+474
+13
+
+TEXTBOX
+11
+231
+161
+249
+Concept List:
+11
+0.0
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -788,7 +797,7 @@ To setup the activity, the instructor creates an input file, 'Input-Parameters.t
 3. Concept #2
 4. ...
 
-When SETUP is pressed, the levels (defined using the _Levels_ slider, shown by grey horizontal bars) and the concepts are placed on the screen.  The concepts are arranged vertically on the world view in the order that they are listed in Input-Parameters.txt. The number of levels can be changed by clicking "Clear Grid", selecting a new number of levels, then clicking "Draw Grid".
+When SETUP is pressed, the levels (defined using the _Levels_ slider, shown by grey horizontal bars) and the concepts are placed on the screen.  The concepts are arranged vertically on the world view in the order that they are listed in Input-Parameters.txt. As well, they are listed in the output area (under 'Concept List:'). The number of levels can be changed by clicking "Clear Grid", selecting a new number of levels, then clicking "Draw Grid".
 
 * Instructor (server) View: The concepts are listed vertically in the centre of the world view. 
 * Student (client) View: Initially, the individual student concepts are hidden; once the student clicks on the world view, concepts are listed vertically to the right of the world view.
@@ -833,8 +842,6 @@ It will be useful to have a means of comparing consensus on the formation of lin
 I would be useful to have some controls on the instructor (server) interface for data monitoring and collection.
 
 * buttons could be added to allow the instructor to scroll back and forward in time with the consensus plots.
-
-Rather than a drop down and monitor for concept number _vs._ concept name, it might be best to just have a monitor output that lists the concepts: e.g., "C1: History", "C2: Time", etc.
 
 Show the student links in the instructor interface:
 
