@@ -24,9 +24,14 @@ of the concepts in the instructor (server) concept map. As well, concepts that s
 
 ## HOW TO USE IT
 
-To setup the activity, the instructor creates an input file, 'Input-Parameters.txt', that contains the concepts that will be used to develop the concept map. Each concept can contain multiple words and must be separated by a carriage return. The instructor also selects the number of concept levels for the concept map using the _Levels_ slider.
+To setup the activity, the instructor creates an input file, 'Input-Parameters.txt', that contains the concept question and the concepts that will be used to develop the concept map. The structure of 'Input-Parameters.txt' is as follows:
 
-When SETUP is pressed, the levels (shown by grey horizontal bars) and the concepts are placed on the screen.  The concepts are arranged vertically on the world view in the order that they are listed in Input-Parameters.txt.
+1. Concept Question
+2. Concept #1
+3. Concept #2
+4. ...
+
+When SETUP is pressed, the levels (defined using the _Levels_ slider, shown by grey horizontal bars) and the concepts are placed on the screen.  The concepts are arranged vertically on the world view in the order that they are listed in Input-Parameters.txt. As well, they are listed in the output area (under 'Concept List:'). The number of levels can be changed by clicking "Clear Grid", selecting a new number of levels, then clicking "Draw Grid".
 
 * Instructor (server) View: The concepts are listed vertically in the centre of the world view.
 * Student (client) View: Initially, the individual student concepts are hidden; once the student clicks on the world view, concepts are listed vertically to the right of the world view.
@@ -38,12 +43,14 @@ The instructor concepts ("class concepts") show the class consensus for each con
 * _position_ is determined by the mean xcor and ycor of the corresponding student concepts
 * _colour_ is determined by the standard deviation of the ycor (level) of the corresponding student concepts (green represents in agreement ... red represents significant disagreement).
 
-To enable the "consensus tracking" for the class concepts, select the _Track_ slider (there must be at least two clients to enable this feature).
+To enable the "consensus tracking" for the class concepts, select the _Track_ slider (there must be at least two clients to enable this feature). Once tracking is enabled, the consensus data can be recorded by selecting _Start Recording_.
 
 The instructor can view the student concepts by clicking on a class concept. For example, if one of the class concepts shows some disagreement (e.g., it is orange or red), the instructor can click on the concept and see all of the student concepts associated with that concept to determine where the disagreement lies. The _Cluster_ slider is used determine how the level of disagreement is represented:
 
-* _Cluster_ Off: The standar deviation of student concept ycor is used (i.e., vertical disagreement). This position should be used for the 'Rank Order' step.
-* _Cluster_ On: The standar deviation of student concept xcor is used (i.e., horizontal disagreement). This position should be used for the 'Cluster' step.
+* _Cluster_ Off: The standard deviation of student concept ycor is used (i.e., vertical disagreement). This position should be used for the 'Rank Order' step.
+* _Cluster_ On: The standard deviation of student concept xcor is used (i.e., horizontal disagreement). This position should be used for the 'Cluster' step.
+
+As well, the instructor can monitor the degree of student 'level consensus' (rank order agreement) and 'cluster consensus' (horizontal or cluster agreement) using the _Level Consensus_ and the _Cluster Consensus_ plots.
 
 Once logged in, the students (clients) can follow the steps proposed by Novak (1984) to build the concept map:
 
@@ -64,10 +71,21 @@ Links can be created by students (clients) using the interface. Possible improve
 It will be useful to have a means of comparing consensus on the formation of links.
 
 * Could a similar system to the instructor (server) concepts be used? For example, the instructor (server) links would appear as the most predominant link (e.g., if 3/4 students have a link from concept 1 to concept 2, the instructor link will be shown from concept 1 to concept 2). The link could then be coloured based on the degree of agreement. A mouse click could be used to show all links (this could be differentiated from the current function with a selector).
+* Alternatively, a simpler approach may be to just show all links, but colour them based on the degree of consensus.
+
+```
+;; identify the number of students
+length hubnet-client-list
+;; count the number of links between concepts
+count links with [from-concept = 1 and to-concept = 2]
+;; create links between concepts on instructor view
+;; color based on the degree of consensus (proportion of total students)
+```
 
 ### Instructor (Server) Functions
-Should a focus question be added to the 'Input-Parameters.txt' file, then displayed on the world view?
-Should a switch be added to re-draw the grid?
+I would be useful to have some controls on the instructor (server) interface for data monitoring and collection.
+
+* buttons could be added to allow the instructor to scroll back and forward in time with the consensus plots.
 
 ### Student (Client) Functions
 It may be useful to allow students or the instructor to add additional concepts to the world view (see "How to Use it" above).
@@ -75,7 +93,9 @@ It may be useful to allow students or the instructor to add additional concepts 
 ### Metrics
 Some features should be added that provide some insight into the _evolution_ of the concept map over time.
 
-* An instructor view plot that tracks the _degree of consensus_. This metric will have to be defined: e.g., average consensus on levels, clustering, links.
+* An instructor view plot that tracks the _degree of consensus_. Currently, two plots have been created that show the standard deviation of the concept positions _vs._ time. 'scroll back' and 'scroll forwar' buttons could be placed under the plot to allow the instructor to look back at consensus.
+* The _degree of consensus_ can also be collected for the individual concepts for external analysis.
+* The Rapid Miner tool is worth exploring for data analysis.
 * An indication of which concepts are the most _troublesome_. This metric will have to be defined: e.g., based on the Std Dev, based on the length of time to reach consensus. This metric is important with respect to the notion of identifying _threshold concepts_.
 
 ### Code block example:

@@ -837,13 +837,7 @@ Links can be created by students (clients) using the interface. Possible improve
 It will be useful to have a means of comparing consensus on the formation of links. 
 
 * Could a similar system to the instructor (server) concepts be used? For example, the instructor (server) links would appear as the most predominant link (e.g., if 3/4 students have a link from concept 1 to concept 2, the instructor link will be shown from concept 1 to concept 2). The link could then be coloured based on the degree of agreement. A mouse click could be used to show all links (this could be differentiated from the current function with a selector).
-
-### Instructor (Server) Functions
-I would be useful to have some controls on the instructor (server) interface for data monitoring and collection.
-
-* buttons could be added to allow the instructor to scroll back and forward in time with the consensus plots.
-
-Show the student links in the instructor interface:
+* Alternatively, a simpler approach may be to just show all links, but colour them based on the degree of consensus.
 
 ```
 ;; identify the number of students
@@ -853,6 +847,11 @@ count links with [from-concept = 1 and to-concept = 2]
 ;; create links between concepts on instructor view
 ;; color based on the degree of consensus (proportion of total students)
 ```
+
+### Instructor (Server) Functions
+I would be useful to have some controls on the instructor (server) interface for data monitoring and collection.
+
+* buttons could be added to allow the instructor to scroll back and forward in time with the consensus plots.
 
 ### Student (Client) Functions
 It may be useful to allow students or the instructor to add additional concepts to the world view (see "How to Use it" above).
