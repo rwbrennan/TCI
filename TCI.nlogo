@@ -103,6 +103,10 @@ to go
       set c-selected nobody
       ask students [ set hidden? TRUE ]
     ]
+    ;; Set the overrides for the client interfaces. For this model, the concepts for all students
+    ;; are shown at the start (whenever a new student logs in). Whenever a client exectutes a
+    ;; a command (e.g., clicks in the window), the other students are hiddent from the client's view.
+    execute-overrides
     plot-level-consensus
     plot-cluster-consensus
     tick
@@ -180,13 +184,6 @@ to execute-command [command]
   ;; If the client clicks on the view the server will receive a message with the tag "View"
   ;; and the hubnet-message will be a two item list of the coordinates.
   ;;
-  ;show command ; useful to see what commands occur from client
-  ;;
-  ;; Set the overrides for the client interfaces. For this model, the concepts for all students
-  ;; are shown at the start (whenever a new student logs in). Whenever a client exectutes a
-  ;; a command (e.g., clicks in the window), the other students are hiddent from the client's view.
-  execute-overrides
-  ;;
   ;; Allows a client to click on a concept and drag it to another location in the view.
   ;; The "View" command is invoked when the client clicks; the "Mouse Up" command is invoked when
   ;; the client releases. The HubNet message contains the xcor and pcor of the mouse.
@@ -221,7 +218,8 @@ to execute-command [command]
       stop
     ]
     command = "Create-Link" [
-      execute-create-link stop
+      execute-create-link
+      stop
     ]
     command = "Remove-Link" [
       execute-remove-link stop
@@ -257,25 +255,57 @@ end
 ;  ]
 ;end
 
+;to execute-overrides
+;  ;; This procedure sets the overrides for the client views.
+;  ;;
+;  ;; First, the client's concepts and links are made visible.
+;  hubnet-send-override hubnet-message-source self "color" [green]
+;  hubnet-send-override hubnet-message-source self "label-color" [white]
+;  hubnet-send-override hubnet-message-source self "hidden?" [FALSE]
+;  ask links with [student-id = hubnet-message-source] [
+;    hubnet-send-override hubnet-message-source self "color" [yellow]
+;    hubnet-send-override hubnet-message-source self "label-color" [yellow]
+;    hubnet-send-override hubnet-message-source self "hidden?" [FALSE]
+;  ]
+;  ;;
+;  ;; Next, all other clients' concepts and links are hidden from the client's view.
+;  ask turtles with [user-id != hubnet-message-source] [
+;    hubnet-send-override hubnet-message-source self "hidden?" [TRUE]
+;  ]
+;  ask links with [student-id != hubnet-message-source] [
+;    hubnet-send-override hubnet-message-source self "hidden?" [TRUE]
+;  ]
+;end
+
 to execute-overrides
   ;; This procedure sets the overrides for the client views.
   ;;
-  ;; First, the client's concepts and links are made visible.
-  hubnet-send-override hubnet-message-source self "color" [green]
-  hubnet-send-override hubnet-message-source self "label-color" [white]
-  hubnet-send-override hubnet-message-source self "hidden?" [FALSE]
-  ask links with [student-id = hubnet-message-source] [
-    hubnet-send-override hubnet-message-source self "color" [yellow]
-    hubnet-send-override hubnet-message-source self "label-color" [yellow]
-    hubnet-send-override hubnet-message-source self "hidden?" [FALSE]
-  ]
-  ;;
-  ;; Next, all other clients' concepts and links are hidden from the client's view.
-  ask turtles with [user-id != hubnet-message-source] [
-    hubnet-send-override hubnet-message-source self "hidden?" [TRUE]
-  ]
-  ask links with [student-id != hubnet-message-source] [
-    hubnet-send-override hubnet-message-source self "hidden?" [TRUE]
+  let i 0
+  let client ""
+  while [i < length hubnet-clients-list]
+  [
+    set client item i hubnet-clients-list
+    ask students with [user-id = client]
+    [
+      ;; First, the client's concepts and links are made visible.
+      hubnet-send-override client self "color" [green]
+      hubnet-send-override client self "label-color" [white]
+      hubnet-send-override client self "hidden?" [FALSE]
+      ask links with [student-id = client] [
+        hubnet-send-override client self "color" [yellow]
+        hubnet-send-override client self "label-color" [yellow]
+        hubnet-send-override client self "hidden?" [FALSE]
+      ]
+    ]
+    ;;
+    ;; Next, all other clients' concepts and links are hidden from the client's view.
+    ask turtles with [user-id != client] [
+      hubnet-send-override client self "hidden?" [TRUE]
+    ]
+    ask links with [student-id != client] [
+      hubnet-send-override client self "hidden?" [TRUE]
+    ]
+    set i i + 1
   ]
 end
 
@@ -629,7 +659,7 @@ SWITCH
 173
 Track
 Track
-0
+1
 1
 -1000
 
