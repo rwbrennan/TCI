@@ -43,6 +43,7 @@ links-own
   student-id
   from-concept
   to-concept
+  class-link?
 ]
 
 ;; the STARTUP procedure runs only once at the beginning of the model
@@ -255,28 +256,6 @@ end
 ;  ]
 ;end
 
-;to execute-overrides
-;  ;; This procedure sets the overrides for the client views.
-;  ;;
-;  ;; First, the client's concepts and links are made visible.
-;  hubnet-send-override hubnet-message-source self "color" [green]
-;  hubnet-send-override hubnet-message-source self "label-color" [white]
-;  hubnet-send-override hubnet-message-source self "hidden?" [FALSE]
-;  ask links with [student-id = hubnet-message-source] [
-;    hubnet-send-override hubnet-message-source self "color" [yellow]
-;    hubnet-send-override hubnet-message-source self "label-color" [yellow]
-;    hubnet-send-override hubnet-message-source self "hidden?" [FALSE]
-;  ]
-;  ;;
-;  ;; Next, all other clients' concepts and links are hidden from the client's view.
-;  ask turtles with [user-id != hubnet-message-source] [
-;    hubnet-send-override hubnet-message-source self "hidden?" [TRUE]
-;  ]
-;  ask links with [student-id != hubnet-message-source] [
-;    hubnet-send-override hubnet-message-source self "hidden?" [TRUE]
-;  ]
-;end
-
 to execute-overrides
   ;; This procedure sets the overrides for the client views.
   ;;
@@ -407,6 +386,7 @@ to execute-create-link
         set from-concept from-number
         set to-concept to-number
         set label link-proposition
+        set class-link? FALSE
       ]
       set hidden? TRUE
     ]
@@ -429,6 +409,42 @@ to view-student-concepts
   set c-selected min-one-of classes [distancexy mouse-xcor mouse-ycor]
   ask c-selected [ set selected-concept concept-no ]
   ask students with [ concept-no = selected-concept ] [ set hidden? FALSE ]
+end
+
+to view-student-links
+  ;;
+  ;; **** error here with respect to number of clients vs number of concepts
+  ;;      this should work, but need to use number of concepts (not clients!)
+  ;;
+  let no-clients length hubnet-clients-list
+  let i 0
+  let j 0
+  let student-links 0
+  let class-links 0
+  while [i < no-clients]
+  [
+    ;; Count the number of student links from concept i to concept j
+    while [j < no-clients]
+    [
+      ;; If there are student links:
+      ;; - create a class link if one doesn't already exist
+      ;; - colour the link based on the number of student links
+      ;; - remove the class link if the student links no longer exist
+      ask students [set student-links count links with [from-concept = i and to-concept = j]]
+      ask classes [set class-links count links with [from-concept = i and to-concept = j]]
+      ;show (word "From " i " to " j ": " student-links " student, " class-links " class")
+      (ifelse
+        student-links > 0 and class-links = 0 [
+          ask classes with [concept-no = i] [create-links-with classes with [concept-no = j]]
+        ]
+        [
+        ]
+      )
+      set j j + 1
+    ]
+    set j 0
+    set i i + 1
+  ]
 end
 
 to setup-consensus-plots
@@ -659,7 +675,7 @@ SWITCH
 173
 Track
 Track
-1
+0
 1
 -1000
 
