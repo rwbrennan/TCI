@@ -122,6 +122,11 @@ to go
       set c-selected nobody
       ask students [ set hidden? TRUE ]
     ]
+    if Show-Links
+    [
+      view-student-links
+    ]
+
     ;; Set the overrides for the client interfaces. For this model, the concepts for all students
     ;; are shown at the start (whenever a new student logs in). Whenever a client exectutes a
     ;; a command (e.g., clicks in the window), the other students are hiddent from the client's view.
@@ -464,7 +469,7 @@ to view-student-links
           ask classes with [concept-no = i]
           [
             set class-id [who] of classes with [concept-no = j]
-            show class-id
+            ;show class-id
             ;create-links-with classes with [concept-no = j]
             ;create-class-link-to class class-id
             create-class-links-to classes with [concept-no = j]
@@ -489,7 +494,9 @@ to view-student-links
           ask classes with [concept-no = i]
           [
             ;show (word "Maintained Link from " i " to " j " Consensus = " consensus)
-            ask my-in-links
+            set class-id [who] of classes with [concept-no = j]
+            ask my-class-links with [end2 = class item 0 class-id]
+            ;ask my-in-links
             [
               (ifelse
                 consensus = 100 [set color green]
@@ -501,7 +508,7 @@ to view-student-links
           ]
         ]
         student-l = 0 and class-l > 0 [
-          ask links with [from-concept = i and to-concept = j and class-link? = TRUE] [die]
+          ask class-links with [from-concept = i and to-concept = j and class-link? = TRUE] [die]
           show (word "Removed Link from " i " to " j)
         ]
       )
@@ -858,21 +865,32 @@ NIL
 1
 
 OUTPUT
-9
-249
-197
-474
+6
+287
+194
+512
 13
 
 TEXTBOX
-11
-231
-161
-249
+8
+269
+158
+287
 Concept List:
 11
 0.0
 1
+
+SWITCH
+10
+223
+138
+256
+Show-Links
+Show-Links
+1
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
