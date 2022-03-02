@@ -412,37 +412,72 @@ to view-student-concepts
 end
 
 to view-student-links
+  ;; This procedure is used to view the student links.
   ;;
-  ;; **** error here with respect to number of clients vs number of concepts
-  ;;      this should work, but need to use number of concepts (not clients!)
-  ;;
-  let no-clients length hubnet-clients-list
-  let i 0
-  let j 0
+  ;let no-clients length hubnet-clients-list
+  let i 1
+  let j 1
   let student-links 0
   let class-links 0
-  while [i < no-clients]
+  let consensus 0
+  while [i <= concepts]
   [
     ;; Count the number of student links from concept i to concept j
-    while [j < no-clients]
+    while [j <= concepts]
     [
       ;; If there are student links:
       ;; - create a class link if one doesn't already exist
       ;; - colour the link based on the number of student links
       ;; - remove the class link if the student links no longer exist
-      ask students [set student-links count links with [from-concept = i and to-concept = j]]
-      ask classes [set class-links count links with [from-concept = i and to-concept = j]]
+      ;ask students [set student-links count links with [from-concept = i and to-concept = j]]
+      ;ask classes [set class-links count links with [from-concept = i and to-concept = j]]
+      set student-links count links with [from-concept = i and to-concept = j and class-link? = FALSE]
+      set class-links count links with [from-concept = i and to-concept = j and class-link? = TRUE]
+      set consensus (student-links / (length hubnet-clients-list) * 100)
       ;show (word "From " i " to " j ": " student-links " student, " class-links " class")
       (ifelse
         student-links > 0 and class-links = 0 [
-          ask classes with [concept-no = i] [create-links-with classes with [concept-no = j]]
+          ask classes with [concept-no = i]
+          [
+            create-links-with classes with [concept-no = j]
+            ;show (word "Created Link from " i " to " j " Consensus = " consensus)
+            ask my-in-links
+            [
+              set from-concept i
+              set to-concept j
+              set class-link? TRUE
+              (ifelse
+                consensus = 100 [set color green]
+                consensus < 100 and consensus >= 67 [set color yellow]
+                consensus < 67 and consensus >= 33 [set color orange]
+                consensus < 33 [set color red]
+              )
+            ]
+          ]
         ]
-        [
+        student-links > 0 and class-links > 0 [
+          ask classes with [concept-no = i]
+          [
+            ;show (word "Maintained Link from " i " to " j " Consensus = " consensus)
+            ask my-in-links
+            [
+              (ifelse
+                consensus = 100 [set color green]
+                consensus < 100 and consensus >= 67 [set color yellow]
+                consensus < 67 and consensus >= 33 [set color orange]
+                consensus < 33 [set color red]
+              )
+            ]
+          ]
+        ]
+        student-links = 0 and class-links > 0 [
+          ask links with [from-concept = i and to-concept = j and class-link? = TRUE] [die]
+          show (word "Removed Link from " i " to " j)
         ]
       )
       set j j + 1
     ]
-    set j 0
+    set j 1
     set i i + 1
   ]
 end
@@ -675,7 +710,7 @@ SWITCH
 173
 Track
 Track
-0
+1
 1
 -1000
 
@@ -876,23 +911,28 @@ Once logged in, the students (clients) can follow the steps proposed by Novak (1
 ### Links 
 Links can be created by students (clients) using the interface. Possible improvements:
 
-* See if it is possible to have the links appear as soon as the "create link" button is pressed (currently, the world view needs to be clicked to get this to work). This may require an execute-overrides command that sends the hubnet-message-source.
+* Links now appear as soon as the "create link" button is pressed (in previous versions, the world view needs to be clicked to get this to work). This required an update to the ``` execute-overrides ``` procecure that sends the hubnet-message-source.
 * I would be interesting to see if the links can be created by a "drag-and-click" type approach.
 
 ### Server Interface Links
 It will be useful to have a means of comparing consensus on the formation of links. 
 
-* Could a similar system to the instructor (server) concepts be used? For example, the instructor (server) links would appear as the most predominant link (e.g., if 3/4 students have a link from concept 1 to concept 2, the instructor link will be shown from concept 1 to concept 2). The link could then be coloured based on the degree of agreement. A mouse click could be used to show all links (this could be differentiated from the current function with a selector).
-* Alternatively, a simpler approach may be to just show all links, but colour them based on the degree of consensus.
+* Work has started on this with the ``` view-student-links ``` procedure. Eventually, this should be incorporated into the go method.
+* The procedure is intended to show all links, and colour them based on the degree of consensus.
 
 ```
-;; identify the number of students
-length hubnet-client-list 
-;; count the number of links between concepts
-count links with [from-concept = 1 and to-concept = 2]
-;; create links between concepts on instructor view
-;; color based on the degree of consensus (proportion of total students)
+;; First, a consensus metric is determined
+set consensus (student-links / (length hubnet-clients-list) * 100)
+;; Next, the colour is determined by the degree of consensus
+(ifelse 
+  consensus = 100 [set color green]
+  consensus < 100 and consensus >= 67 [set color yellow]
+  consensus < 67 and consensus >= 33 [set color orange]
+  consensus < 33 [set color red]
+)
 ```
+
+* Currently, there seems to be an error with the identification of the link. A fix should be straight-forward.
 
 ### Instructor (Server) Functions
 I would be useful to have some controls on the instructor (server) interface for data monitoring and collection.
