@@ -87,6 +87,7 @@ to setup
   create-class-concepts
   setup-consensus-plots
   set Track FALSE
+  set Show-Links FALSE
   set c-record FALSE
   ask students
   [
@@ -122,7 +123,7 @@ to go
       set c-selected nobody
       ask students [ set hidden? TRUE ]
     ]
-    if Show-Links
+    if Show-Links and length hubnet-clients-list > 0
     [
       view-student-links
     ]
@@ -509,7 +510,7 @@ to view-student-links
         ]
         student-l = 0 and class-l > 0 [
           ask class-links with [from-concept = i and to-concept = j and class-link? = TRUE] [die]
-          show (word "Removed Link from " i " to " j)
+          ;show (word "Removed Link from " i " to " j)
         ]
       )
       set j j + 1
