@@ -2,6 +2,8 @@
 ;; there will be one student turtle for each client.
 breed [ students student ]
 breed [ classes class ]
+directed-link-breed [student-links student-link]
+directed-link-breed [class-links class-link]
 
 globals
 [
@@ -417,31 +419,33 @@ to view-student-links
   ;let no-clients length hubnet-clients-list
   let i 1
   let j 1
-  let student-links 0
-  let class-links 0
+  let student-l 0
+  let class-l 0
   let consensus 0
+  ;let class-id 0
   while [i <= concepts]
   [
     ;; Count the number of student links from concept i to concept j
     while [j <= concepts]
     [
-      ;; If there are student links:
-      ;; - create a class link if one doesn't already exist
-      ;; - colour the link based on the number of student links
-      ;; - remove the class link if the student links no longer exist
-      ;ask students [set student-links count links with [from-concept = i and to-concept = j]]
-      ;ask classes [set class-links count links with [from-concept = i and to-concept = j]]
-      set student-links count links with [from-concept = i and to-concept = j and class-link? = FALSE]
-      set class-links count links with [from-concept = i and to-concept = j and class-link? = TRUE]
-      set consensus (student-links / (length hubnet-clients-list) * 100)
+      ;; First, count the number of links from concept i to concept j between student (client) concepts
+      ;; (student-links) and the number of links between class (server) concepts (class-links).
+      set student-l count links with [from-concept = i and to-concept = j and class-link? = FALSE]
+      set class-l count links with [from-concept = i and to-concept = j and class-link? = TRUE]
+      ;; Next, calculate the "consensus" for the student-links. This the proportion of students who
+      ;; have the same link from concept i to concept j
+      set consensus (student-l / (length hubnet-clients-list) * 100)
       ;show (word "From " i " to " j ": " student-links " student, " class-links " class")
       (ifelse
-        student-links > 0 and class-links = 0 [
+        student-l > 0 and class-l = 0 [
           ask classes with [concept-no = i]
           [
+            ;set class-id [who] of classes with [concept-no = j]
             create-links-with classes with [concept-no = j]
+            ;create-link-to class class-id
             ;show (word "Created Link from " i " to " j " Consensus = " consensus)
             ask my-in-links
+            ;ask my-in-links with [end2 = class class-id]
             [
               set from-concept i
               set to-concept j
@@ -455,7 +459,7 @@ to view-student-links
             ]
           ]
         ]
-        student-links > 0 and class-links > 0 [
+        student-l > 0 and class-l > 0 [
           ask classes with [concept-no = i]
           [
             ;show (word "Maintained Link from " i " to " j " Consensus = " consensus)
@@ -470,7 +474,7 @@ to view-student-links
             ]
           ]
         ]
-        student-links = 0 and class-links > 0 [
+        student-l = 0 and class-l > 0 [
           ask links with [from-concept = i and to-concept = j and class-link? = TRUE] [die]
           show (word "Removed Link from " i " to " j)
         ]
@@ -710,7 +714,7 @@ SWITCH
 173
 Track
 Track
-1
+0
 1
 -1000
 
