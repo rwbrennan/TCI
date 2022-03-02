@@ -40,7 +40,23 @@ classes-own
   user-id
 ]
 
-links-own
+;links-own
+;[
+;  student-id
+;  from-concept
+;  to-concept
+;  class-link?
+;]
+
+student-links-own
+[
+  student-id
+  from-concept
+  to-concept
+  class-link?
+]
+
+class-links-own
 [
   student-id
   from-concept
@@ -272,7 +288,8 @@ to execute-overrides
       hubnet-send-override client self "color" [green]
       hubnet-send-override client self "label-color" [white]
       hubnet-send-override client self "hidden?" [FALSE]
-      ask links with [student-id = client] [
+      ask student-links with [student-id = client] [
+      ;ask links with [student-id = client] [
         hubnet-send-override client self "color" [yellow]
         hubnet-send-override client self "label-color" [yellow]
         hubnet-send-override client self "hidden?" [FALSE]
@@ -283,7 +300,8 @@ to execute-overrides
     ask turtles with [user-id != client] [
       hubnet-send-override client self "hidden?" [TRUE]
     ]
-    ask links with [student-id != client] [
+    ask student-links with [student-id != client] [
+    ;ask links with [student-id != client] [
       hubnet-send-override client self "hidden?" [TRUE]
     ]
     set i i + 1
@@ -379,8 +397,10 @@ to execute-create-link
     let from-number from-no
     let to-number to-no
     let link-proposition s-prop
-    create-links-with students with [user-id = hubnet-message-source and concept-no = to-no]
-    ask my-in-links
+    ;create-links-with students with [user-id = hubnet-message-source and concept-no = to-no]
+    create-student-links-to students with [user-id = hubnet-message-source and concept-no = to-no]
+    ;ask my-in-student-links
+    ask my-out-student-links
     [
       set student-id hubnet-message-source
       if from-concept = 0
@@ -400,7 +420,7 @@ to execute-remove-link
   [
     let from-number from-no
     let to-number to-no
-    ask links with [student-id = hubnet-message-source and from-concept = from-number and to-concept = to-number] [die]
+    ask student-links with [student-id = hubnet-message-source and from-concept = from-number and to-concept = to-number] [die]
   ]
 end
 
@@ -422,7 +442,7 @@ to view-student-links
   let student-l 0
   let class-l 0
   let consensus 0
-  ;let class-id 0
+  let class-id 0
   while [i <= concepts]
   [
     ;; Count the number of student links from concept i to concept j
@@ -440,12 +460,12 @@ to view-student-links
         student-l > 0 and class-l = 0 [
           ask classes with [concept-no = i]
           [
-            ;set class-id [who] of classes with [concept-no = j]
-            create-links-with classes with [concept-no = j]
-            ;create-link-to class class-id
+            set class-id [who] of classes with [concept-no = j]
+            ;create-links-with classes with [concept-no = j]
+            create-class-link-to class class-id
             ;show (word "Created Link from " i " to " j " Consensus = " consensus)
-            ask my-in-links
-            ;ask my-in-links with [end2 = class class-id]
+            ;ask my-in-links
+            ask my-in-links with [end2 = class class-id]
             [
               set from-concept i
               set to-concept j
