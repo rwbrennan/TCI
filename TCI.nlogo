@@ -304,6 +304,9 @@ to execute-overrides
     ;ask links with [student-id != client] [
       hubnet-send-override client self "hidden?" [TRUE]
     ]
+    ask class-links [
+      hubnet-send-override client self "hidden?" [TRUE]
+    ]
     set i i + 1
   ]
 end
@@ -450,8 +453,8 @@ to view-student-links
     [
       ;; First, count the number of links from concept i to concept j between student (client) concepts
       ;; (student-links) and the number of links between class (server) concepts (class-links).
-      set student-l count links with [from-concept = i and to-concept = j and class-link? = FALSE]
-      set class-l count links with [from-concept = i and to-concept = j and class-link? = TRUE]
+      set student-l count student-links with [from-concept = i and to-concept = j and class-link? = FALSE]
+      set class-l count class-links with [from-concept = i and to-concept = j and class-link? = TRUE]
       ;; Next, calculate the "consensus" for the student-links. This the proportion of students who
       ;; have the same link from concept i to concept j
       set consensus (student-l / (length hubnet-clients-list) * 100)
@@ -461,11 +464,14 @@ to view-student-links
           ask classes with [concept-no = i]
           [
             set class-id [who] of classes with [concept-no = j]
+            show class-id
             ;create-links-with classes with [concept-no = j]
-            create-class-link-to class class-id
+            ;create-class-link-to class class-id
+            create-class-links-to classes with [concept-no = j]
             ;show (word "Created Link from " i " to " j " Consensus = " consensus)
             ;ask my-in-links
-            ask my-in-links with [end2 = class class-id]
+            ask my-class-links with [end2 = class item 0 class-id]
+            ;ask my-out-student-links with [from-concept = 0]
             [
               set from-concept i
               set to-concept j
@@ -734,7 +740,7 @@ SWITCH
 173
 Track
 Track
-0
+1
 1
 -1000
 
