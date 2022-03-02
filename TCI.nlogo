@@ -87,6 +87,7 @@ to setup
   create-class-concepts
   setup-consensus-plots
   set Track FALSE
+  set Cluster FALSE
   set Show-Links FALSE
   set c-record FALSE
   ask students
