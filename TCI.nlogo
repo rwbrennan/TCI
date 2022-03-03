@@ -40,14 +40,6 @@ classes-own
   user-id
 ]
 
-;links-own
-;[
-;  student-id
-;  from-concept
-;  to-concept
-;  class-link?
-;]
-
 student-links-own
 [
   student-id
@@ -402,15 +394,20 @@ end
 to execute-create-link
   ;; This procedure is used to create a link between two concepts
   ;; The student (client) specifies the "from concept", the "to concept", and the proposition on the student interface
+  let link-to-id 0
   ask students with [user-id = hubnet-message-source and concept-no = from-no]
   [
     let from-number from-no
     let to-number to-no
     let link-proposition s-prop
     ;create-links-with students with [user-id = hubnet-message-source and concept-no = to-no]
+
+    ;create-student-links-to students with [user-id = hubnet-message-source and concept-no = to-no]
+    set link-to-id [who] of students with [user-id = hubnet-message-source and concept-no = to-no]
     create-student-links-to students with [user-id = hubnet-message-source and concept-no = to-no]
     ;ask my-in-student-links
-    ask my-out-student-links
+    ;ask my-out-student-links
+    ask my-student-links with [end2 = student item 0 link-to-id]
     [
       set student-id hubnet-message-source
       if from-concept = 0
