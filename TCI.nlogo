@@ -598,7 +598,7 @@ to plot-link-consensus
       set-plot-pen-color (i * 10 + 5)
       set consensus link-consensus i
       plotxy timer consensus
-      if c-record = TRUE [record-consensus-data (word "CC" i) timer consensus]
+      if c-record = TRUE [record-consensus-data (word "IC" i) timer consensus]
       set i i + 1
     ]
   ]
