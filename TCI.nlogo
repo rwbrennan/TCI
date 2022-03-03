@@ -124,6 +124,7 @@ to go
     execute-overrides
     plot-level-consensus
     plot-cluster-consensus
+    plot-link-consensus
     tick
   ]
 
@@ -521,6 +522,15 @@ to setup-consensus-plots
     set-plot-pen-color ((i - 1) * 10 + 5)
     set i i + 1
   ]
+  set-current-plot "Link Consensus"
+  set i 1
+  while [i <= concepts]
+  [
+    create-temporary-plot-pen (word "C" i)
+    set-plot-pen-color ((i - 1) * 10 + 5)
+    set i i + 1
+  ]
+
 end
 
 to plot-level-consensus
@@ -568,6 +578,42 @@ to plot-cluster-consensus
       set i i + 1
     ]
   ]
+end
+
+to plot-link-consensus
+  ;; This procedure is used to plot cluster concept consensus vs time
+  ;; A range of 0 - 60 seconds is used. Once the time reaches 60 seconds, the plot scrolls to the
+  ;; right with a 60 second interval.
+  set-current-plot "Link Consensus"
+  ifelse timer <= 60
+  [set-plot-x-range 0 60]
+  [set-plot-x-range timer - 60 timer]
+  let i 1
+  let consensus 0
+  if Show-Links and length hubnet-clients-list > 1
+  [
+    while [i <= concepts]
+    [
+      set-current-plot-pen (word "C" i)
+      set-plot-pen-color (i * 10 + 5)
+      set consensus link-consensus i
+      plotxy timer consensus
+      if c-record = TRUE [record-consensus-data (word "CC" i) timer consensus]
+      set i i + 1
+    ]
+  ]
+end
+
+to-report link-consensus [concept-number]
+  ;; This procedure is used to calculate the link consensus for a given concept.
+  ;; This is based on the number of links coming into or out of a given concept. If there is 100% consensus, the number of links
+  ;; associated with each concept is the number of links associated with each student concept times the number of students (clients).
+  ;;
+  let no-student-links count student-links with [from-concept = concept-number or to-concept = concept-number]
+  let no-class-links count class-links with [from-concept = concept-number or to-concept = concept-number]
+  ifelse no-class-links > 0
+  [report 100 * (no-student-links / (no-class-links * length hubnet-clients-list))]
+  [report 0]
 end
 
 to setup-consensus-data [record-mode]
@@ -811,10 +857,10 @@ true
 PENS
 
 BUTTON
-943
-495
-1043
-528
+953
+758
+1053
+791
 Start Recording
 setup-consensus-data TRUE
 NIL
@@ -828,10 +874,10 @@ NIL
 1
 
 BUTTON
-1051
-495
-1151
-528
+1061
+758
+1161
+791
 Stop Recording
 setup-consensus-data FALSE
 NIL
@@ -871,6 +917,23 @@ Show-Links
 1
 1
 -1000
+
+PLOT
+941
+487
+1226
+722
+Link Consensus
+NIL
+NIL
+0.0
+60.0
+0.0
+100.0
+true
+true
+"" ""
+PENS
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -934,12 +997,14 @@ Once logged in, the students (clients) can follow the steps proposed by Novak (1
 3. _Cluster_: For this step, students should be asked to cluster the concepts by grouping sub-concepts under general concepts (i.e., consider the horizontal order at this point). The _Cluster_ slider should be moved to the 'On' position this step so that a horizontal level of consensus is reflected by the class concept colours.
 4. _Link_: For this step, the instructor can clear the grid (click the _Clear Grid_ button), then ask the students to create the links between the concepts. To create links, student select a _From-Concept_ and a _To-Concept_ from using the choosers on the client interface. The choosers use the concept number and display the concept in the _FromConcept_ and _ToConcept_ monitors respectively. Student should next type a proposition into the _Proposition_ input (Enter/Return must be pressed to read the proposition). Once the 'from' and 'to' concepts are selected and the proposition is entered, the student should click _Create-Link_. To see the link, the student must click anywhere on the world view. To remove a linke, the appropriate _From-Concept_ and _To-Concept_ chooser should be selected, then the _Remove-Link_ button can be pressed.
 
-The instructor can view the student links by clicking _Show Links_. The student links are coloured based on consensus:
+The instructor can view the student links by selecting _Show Links_. The student links are coloured based on consensus:
 
 * Green: All students have identified this link.
 * Yellow: More than 2/3 of the students have identified this link (100% < no. students <= 67%).
 * Orange: More than 1/3 of the students have identified this link (670% < no. students <= 33%).
 * Red: Less than 1/3 of the students have identified this link.
+
+As well, the instructor can monitor the degree of student 'link consensus' using the _Link Consensus_ plot. This plot becomes active once _Show Links_ is selected. 
 
 ## NEXT STEPS
 
