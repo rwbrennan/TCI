@@ -410,13 +410,13 @@ to execute-create-link
     ask my-student-links with [end2 = student item 0 link-to-id]
     [
       set student-id hubnet-message-source
-      if from-concept = 0
-      [
+;      if from-concept = 0
+;      [
         set from-concept from-number
         set to-concept to-number
         set label link-proposition
-        set class-link? FALSE
-      ]
+        ;set class-link? FALSE
+;      ]
       set hidden? TRUE
     ]
   ]
@@ -457,8 +457,10 @@ to view-student-links
     [
       ;; First, count the number of links from concept i to concept j between student (client) concepts
       ;; (student-links) and the number of links between class (server) concepts (class-links).
-      set student-l count student-links with [from-concept = i and to-concept = j and class-link? = FALSE]
-      set class-l count class-links with [from-concept = i and to-concept = j and class-link? = TRUE]
+      ;set student-l count student-links with [from-concept = i and to-concept = j and class-link? = FALSE]
+      ;set class-l count class-links with [from-concept = i and to-concept = j and class-link? = TRUE]
+      set student-l count student-links with [from-concept = i and to-concept = j]
+      set class-l count class-links with [from-concept = i and to-concept = j]
       ;; Next, calculate the "consensus" for the student-links. This the proportion of students who
       ;; have the same link from concept i to concept j
       set consensus (student-l / (length hubnet-clients-list) * 100)
@@ -746,7 +748,7 @@ SWITCH
 173
 Track
 Track
-1
+0
 1
 -1000
 
@@ -887,7 +889,7 @@ SWITCH
 256
 Show-Links
 Show-Links
-1
+0
 1
 -1000
 
