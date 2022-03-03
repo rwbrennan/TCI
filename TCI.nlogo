@@ -45,15 +45,12 @@ student-links-own
   student-id
   from-concept
   to-concept
-  class-link?
 ]
 
 class-links-own
 [
-  student-id
   from-concept
   to-concept
-  class-link?
 ]
 
 ;; the STARTUP procedure runs only once at the beginning of the model
@@ -400,23 +397,14 @@ to execute-create-link
     let from-number from-no
     let to-number to-no
     let link-proposition s-prop
-    ;create-links-with students with [user-id = hubnet-message-source and concept-no = to-no]
-
-    ;create-student-links-to students with [user-id = hubnet-message-source and concept-no = to-no]
     set link-to-id [who] of students with [user-id = hubnet-message-source and concept-no = to-no]
     create-student-links-to students with [user-id = hubnet-message-source and concept-no = to-no]
-    ;ask my-in-student-links
-    ;ask my-out-student-links
     ask my-student-links with [end2 = student item 0 link-to-id]
     [
       set student-id hubnet-message-source
-;      if from-concept = 0
-;      [
-        set from-concept from-number
-        set to-concept to-number
-        set label link-proposition
-        ;set class-link? FALSE
-;      ]
+      set from-concept from-number
+      set to-concept to-number
+      set label link-proposition
       set hidden? TRUE
     ]
   ]
@@ -443,7 +431,6 @@ end
 to view-student-links
   ;; This procedure is used to view the student links.
   ;;
-  ;let no-clients length hubnet-clients-list
   let i 1
   let j 1
   let student-l 0
@@ -457,8 +444,6 @@ to view-student-links
     [
       ;; First, count the number of links from concept i to concept j between student (client) concepts
       ;; (student-links) and the number of links between class (server) concepts (class-links).
-      ;set student-l count student-links with [from-concept = i and to-concept = j and class-link? = FALSE]
-      ;set class-l count class-links with [from-concept = i and to-concept = j and class-link? = TRUE]
       set student-l count student-links with [from-concept = i and to-concept = j]
       set class-l count class-links with [from-concept = i and to-concept = j]
       ;; Next, calculate the "consensus" for the student-links. This the proportion of students who
@@ -471,17 +456,12 @@ to view-student-links
           [
             set class-id [who] of classes with [concept-no = j]
             ;show class-id
-            ;create-links-with classes with [concept-no = j]
-            ;create-class-link-to class class-id
             create-class-links-to classes with [concept-no = j]
             ;show (word "Created Link from " i " to " j " Consensus = " consensus)
-            ;ask my-in-links
             ask my-class-links with [end2 = class item 0 class-id]
-            ;ask my-out-student-links with [from-concept = 0]
             [
               set from-concept i
               set to-concept j
-              set class-link? TRUE
               (ifelse
                 consensus = 100 [set color green]
                 consensus < 100 and consensus >= 67 [set color yellow]
@@ -497,7 +477,6 @@ to view-student-links
             ;show (word "Maintained Link from " i " to " j " Consensus = " consensus)
             set class-id [who] of classes with [concept-no = j]
             ask my-class-links with [end2 = class item 0 class-id]
-            ;ask my-in-links
             [
               (ifelse
                 consensus = 100 [set color green]
@@ -509,7 +488,7 @@ to view-student-links
           ]
         ]
         student-l = 0 and class-l > 0 [
-          ask class-links with [from-concept = i and to-concept = j and class-link? = TRUE] [die]
+          ask class-links with [from-concept = i and to-concept = j] [die]
           ;show (word "Removed Link from " i " to " j)
         ]
       )
@@ -748,7 +727,7 @@ SWITCH
 173
 Track
 Track
-0
+1
 1
 -1000
 
@@ -889,7 +868,7 @@ SWITCH
 256
 Show-Links
 Show-Links
-0
+1
 1
 -1000
 
@@ -927,10 +906,10 @@ To setup the activity, the instructor creates an input file, 'Input-Parameters.t
 3. Concept #2
 4. ...
 
-When SETUP is pressed, the levels (defined using the _Levels_ slider, shown by grey horizontal bars) and the concepts are placed on the screen.  The concepts are arranged vertically on the world view in the order that they are listed in Input-Parameters.txt. As well, they are listed in the output area (under 'Concept List:'). The number of levels can be changed by clicking "Clear Grid", selecting a new number of levels, then clicking "Draw Grid".
+When SETUP is pressed, the levels (defined using the _Levels_ slider, shown by grey horizontal bars) and the concepts are placed on the screen.  The concepts are arranged vertically on the world view in the order that they are listed in Input-Parameters.txt. The number of levels can be changed by clicking _Clear Grid_, selecting a new number of levels, then clicking _Draw Grid_.
 
-* Instructor (server) View: The concepts are listed vertically in the centre of the world view. 
-* Student (client) View: Initially, the individual student concepts are hidden; once the student clicks on the world view, concepts are listed vertically to the right of the world view.
+* Instructor (server) View: The concepts are listed vertically in the centre of the world view and are listed in the output area (under 'Concept List:').
+* Student (client) View: The concepts are listed vertically to the right of the world view.
 
 To start the activity press the GO button.  Ask students to login using the HubNet client. The instructor may also test the activity locally by pressing the LOCAL button in the HubNet Control Center. To see the view in the client interface check the Mirror 2D view on clients checkbox.  
 
@@ -955,33 +934,25 @@ Once logged in, the students (clients) can follow the steps proposed by Novak (1
 3. _Cluster_: For this step, students should be asked to cluster the concepts by grouping sub-concepts under general concepts (i.e., consider the horizontal order at this point). The _Cluster_ slider should be moved to the 'On' position this step so that a horizontal level of consensus is reflected by the class concept colours.
 4. _Link_: For this step, the instructor can clear the grid (click the _Clear Grid_ button), then ask the students to create the links between the concepts. To create links, student select a _From-Concept_ and a _To-Concept_ from using the choosers on the client interface. The choosers use the concept number and display the concept in the _FromConcept_ and _ToConcept_ monitors respectively. Student should next type a proposition into the _Proposition_ input (Enter/Return must be pressed to read the proposition). Once the 'from' and 'to' concepts are selected and the proposition is entered, the student should click _Create-Link_. To see the link, the student must click anywhere on the world view. To remove a linke, the appropriate _From-Concept_ and _To-Concept_ chooser should be selected, then the _Remove-Link_ button can be pressed.
 
+The instructor can view the student links by clicking _Show Links_. The student links are coloured based on consensus:
+
+* Green: All students have identified this link.
+* Yellow: More than 2/3 of the students have identified this link (100% < no. students <= 67%).
+* Orange: More than 1/3 of the students have identified this link (670% < no. students <= 33%).
+* Red: Less than 1/3 of the students have identified this link.
+
 ## NEXT STEPS
 
 ### Links 
 Links can be created by students (clients) using the interface. Possible improvements:
 
-* Links now appear as soon as the "create link" button is pressed (in previous versions, the world view needs to be clicked to get this to work). This required an update to the ``` execute-overrides ``` procecure that sends the hubnet-message-source.
-* I would be interesting to see if the links can be created by a "drag-and-click" type approach.
+* It would be interesting to see if the links can be created by a "drag-and-click" type approach.
 
 ### Server Interface Links
 It will be useful to have a means of comparing consensus on the formation of links. 
 
 * Work has started on this with the ``` view-student-links ``` procedure. Eventually, this should be incorporated into the go method.
 * The procedure is intended to show all links, and colour them based on the degree of consensus.
-
-```
-;; First, a consensus metric is determined
-set consensus (student-links / (length hubnet-clients-list) * 100)
-;; Next, the colour is determined by the degree of consensus
-(ifelse 
-  consensus = 100 [set color green]
-  consensus < 100 and consensus >= 67 [set color yellow]
-  consensus < 67 and consensus >= 33 [set color orange]
-  consensus < 33 [set color red]
-)
-```
-
-* Currently, there seems to be an error with the identification of the link. A fix should be straight-forward.
 
 ### Instructor (Server) Functions
 I would be useful to have some controls on the instructor (server) interface for data monitoring and collection.
@@ -995,9 +966,9 @@ It may be useful to allow students or the instructor to add additional concepts 
 Some features should be added that provide some insight into the _evolution_ of the concept map over time.
 
 * An instructor view plot that tracks the _degree of consensus_. Currently, two plots have been created that show the standard deviation of the concept positions _vs._ time. 'scroll back' and 'scroll forwar' buttons could be placed under the plot to allow the instructor to look back at consensus.
-* The _degree of consensus_ can also be collected for the individual concepts for external analysis. 
-* The Rapid Miner tool is worth exploring for data analysis.
-* An indication of which concepts are the most _troublesome_. This metric will have to be defined: e.g., based on the Std Dev, based on the length of time to reach consensus. This metric is important with respect to the notion of identifying _threshold concepts_. 
+* The _degree of consensus_ can also be collected for the individual concepts for external analysis. The Rapid Miner tool is worth exploring for data analysis.
+* An indication of which concepts are the most _troublesome_. This metric will have to be defined: e.g., based on the Std Dev, based on the length of time to reach consensus. This metric is important with respect to the notion of identifying _threshold concepts_.
+* Link consensus needs to be tracked as noted above. 
 
 ### Code block example:
 Here is an example of how to show a code block in the Info tab:
