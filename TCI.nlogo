@@ -122,9 +122,12 @@ to go
     ;; are shown at the start (whenever a new student logs in). Whenever a client exectutes a
     ;; a command (e.g., clicks in the window), the other students are hiddent from the client's view.
     execute-overrides
-    plot-level-consensus
-    plot-cluster-consensus
-    plot-link-consensus
+    if Track or Cluster
+    [
+      plot-level-consensus
+      plot-cluster-consensus
+    ]
+    if Show-Links [plot-link-consensus]
     tick
   ]
 
@@ -914,7 +917,7 @@ SWITCH
 256
 Show-Links
 Show-Links
-1
+0
 1
 -1000
 
