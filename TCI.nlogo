@@ -7,14 +7,15 @@ directed-link-breed [class-links class-link]
 
 globals
 [
-;  selected    ;; identifies the student concept to be moved (REMOVE once linked code is corrected)
-  s-index     ;; student index in s-selected list
-  s-selected  ;; student concept selected list
+;  selected        ;; identifies the student concept to be moved (REMOVE once linked code is corrected)
+  s-index          ;; student index in s-selected list
+  s-selected       ;; student concept selected list
 ;  linked
-  c-selected  ;; identifies student concepts in instructor view
-  concepts    ;; number of concepts
-  concept     ;; concept list
-  c-record   ;; if TRUE, save consensus data
+  c-selected       ;; identifies student concepts in instructor view
+  concepts         ;; number of concepts
+  concept          ;; concept list
+  c-record         ;; if TRUE, save consensus data
+  plot-increment   ;; variable used to scroll the interaction diagram
 ]
 
 students-own
@@ -79,6 +80,7 @@ to setup
   set Cluster FALSE
   set Show-Links FALSE
   set c-record FALSE
+  set plot-increment 0
   ask students
   [
     hubnet-send user-id shape "box 2"
@@ -543,7 +545,8 @@ to plot-level-consensus
   set-current-plot "Level Consensus"
   ifelse timer <= 60
   [set-plot-x-range 0 60]
-  [set-plot-x-range timer - 60 timer]
+  ;[set-plot-x-range timer - 60 timer]
+  [set-plot-x-range (timer - 60 - plot-increment) (timer - plot-increment)]
   let i 1
   let consensus 0
   if Track and length hubnet-clients-list > 1
@@ -566,7 +569,8 @@ to plot-cluster-consensus
   set-current-plot "Cluster Consensus"
   ifelse timer <= 60
   [set-plot-x-range 0 60]
-  [set-plot-x-range timer - 60 timer]
+  ;[set-plot-x-range timer - 60 timer]
+  [set-plot-x-range (timer - 60 - plot-increment) (timer - plot-increment)]
   let i 1
   let consensus 0
   if Track and length hubnet-clients-list > 1
@@ -590,7 +594,8 @@ to plot-link-consensus
   set-current-plot "Link Consensus"
   ifelse timer <= 60
   [set-plot-x-range 0 60]
-  [set-plot-x-range timer - 60 timer]
+  ;[set-plot-x-range timer - 60 timer]
+  [set-plot-x-range (timer - 60 - plot-increment) (timer - plot-increment)]
   let i 1
   let consensus 0
   if Show-Links and length hubnet-clients-list > 1
@@ -605,6 +610,18 @@ to plot-link-consensus
       set i i + 1
     ]
   ]
+end
+
+to scroll-plot [increment]
+  ;; This procedure is used to set the plot-increment used in the plots
+  ;; to allow the plot to be scrolled back and forward in time (ticks)
+  ;; Reset if increment = 0
+  if increment = 0
+  [set plot-increment 0]
+  ;; Check that we are not going too far back or too far forward before incrementing
+  let temp-increment plot-increment + increment * 10
+  if (timer - temp-increment) <= timer and (timer - 60 - plot-increment) >= 0
+  [set plot-increment temp-increment]
 end
 
 to-report link-consensus [concept-number]
@@ -776,7 +793,7 @@ SWITCH
 173
 Track
 Track
-1
+0
 1
 -1000
 
@@ -837,7 +854,7 @@ Consensus
 60.0
 0.0
 10.0
-true
+false
 true
 "" ""
 PENS
@@ -854,16 +871,16 @@ Consensus
 60.0
 0.0
 10.0
-true
+false
 true
 "" ""
 PENS
 
 BUTTON
-953
-758
-1053
-791
+945
+770
+1045
+803
 Start Recording
 setup-consensus-data TRUE
 NIL
@@ -877,10 +894,10 @@ NIL
 1
 
 BUTTON
-1061
-758
-1161
-791
+1053
+770
+1153
+803
 Stop Recording
 setup-consensus-data FALSE
 NIL
@@ -933,10 +950,61 @@ NIL
 60.0
 0.0
 100.0
-true
+false
 true
 "" ""
 PENS
+
+BUTTON
+978
+729
+1043
+762
+-10 s
+scroll-plot 1
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+1052
+729
+1117
+762
+Reset
+scroll-plot 0
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+1126
+729
+1195
+762
++10 s
+scroll-plot -1
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
