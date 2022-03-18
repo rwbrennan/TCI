@@ -72,7 +72,7 @@ to setup
   ;; know about the change if the value appears anywhere in their interface.
 
   setup-input-parameters
-  setup-concept-list
+  ;setup-concept-list
   setup-levels
   create-class-concepts
   setup-consensus-plots
@@ -665,11 +665,24 @@ end
 to setup-concept-list
   ;; This procedure is used to print the list of concepts to the output area on
   ;; the instructor (server) interface
+  ;; **** This is currently not being used since show-propositions is using the output ****
   let i 0
   while [i < concepts]
   [
     output-print (word "C" (i + 1) ": " item i concept)
     set i i + 1
+  ]
+end
+
+to show-propositions
+  ;; This procedure is used to print the student propositions to the output area
+  ;; on the instructor (server) interface.
+  clear-output
+  output-print "Student Propositions:"
+  output-print (word (item (Link-From - 1) concept) " -> " (item (Link-To - 1) concept))
+  ask student-links with [from-concept = Link-From and to-concept = Link-To]
+  [
+    output-print (word label " (" student-id ")")
   ]
 end
 
@@ -806,7 +819,7 @@ SWITCH
 173
 Track
 Track
-0
+1
 1
 -1000
 
@@ -890,10 +903,10 @@ true
 PENS
 
 BUTTON
-945
-770
-1045
-803
+978
+769
+1078
+802
 Start Recording
 setup-consensus-data TRUE
 NIL
@@ -907,10 +920,10 @@ NIL
 1
 
 BUTTON
-1053
-770
-1153
-803
+1096
+769
+1196
+802
 Stop Recording
 setup-consensus-data FALSE
 NIL
@@ -924,18 +937,18 @@ NIL
 1
 
 OUTPUT
-6
-287
-194
-512
+3
+380
+191
+605
 13
 
 TEXTBOX
-8
+9
 269
-158
+159
 287
-Concept List:
+Display Student Concepts:
 11
 0.0
 1
@@ -947,7 +960,7 @@ SWITCH
 256
 Show-Links
 Show-Links
-0
+1
 1
 -1000
 
@@ -1009,6 +1022,43 @@ BUTTON
 762
 +10 s
 scroll-plot -1
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+CHOOSER
+5
+291
+97
+336
+Link-From
+Link-From
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+0
+
+CHOOSER
+100
+291
+192
+336
+Link-To
+Link-To
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+1
+
+BUTTON
+54
+342
+141
+375
+Propositions
+show-propositions
 NIL
 1
 T
@@ -1094,7 +1144,7 @@ The instructor can view the student links by selecting _Show Links_. The student
 * Orange: More than 1/3 of the students have identified this link (670% < no. students <= 33%).
 * Red: Less than 1/3 of the students have identified this link.
 
-As well, the instructor can monitor the degree of student 'link consensus' using the _Link Consensus_ plot. This plot becomes active once _Show Links_ is selected. 
+The instructor can monitor the degree of student 'link consensus' using the _Link Consensus_ plot. This plot becomes active once _Show Links_ is selected. An output interface has also been provided to list the student propositions: the instructor selects the "from" and the "to" concepts, then presses _Propositions_ to show the student propositions in the output window.
 
 ### Consensus Data
 
@@ -1118,10 +1168,9 @@ Links can be created by students (clients) using the interface. Possible improve
 * It would be interesting to see if the links can be created by a "drag-and-click" type approach.
 
 ### Instructor (Server) Functions
-A feature should be added to record student propositions. 
+An output window has been added to record student propositions. 
 
-* Save to an output file for external analysis.
-* Replace the current ``` setup-concept-list ``` method with a output window for link concepts. For example, the instructor could select the "from" and "to" concepts, and the output window would show something like "Concept ... to ... propositions: ... list of student propositions"
+* Additional functionality to save the output to a file for external analysis could be added. This could be accomplished using the ``` output-write ``` command.
 
 ### Student (Client) Functions
 It may be useful to allow students or the instructor to add additional concepts to the world view (see "How to Use it" above).
