@@ -819,7 +819,7 @@ SWITCH
 173
 Track
 Track
-1
+0
 1
 -1000
 
@@ -903,10 +903,10 @@ true
 PENS
 
 BUTTON
-978
-769
-1078
-802
+3
+611
+103
+644
 Start Recording
 setup-consensus-data TRUE
 NIL
@@ -920,10 +920,10 @@ NIL
 1
 
 BUTTON
-1096
-769
-1196
-802
+3
+648
+103
+681
 Stop Recording
 setup-consensus-data FALSE
 NIL
@@ -935,13 +935,6 @@ NIL
 NIL
 NIL
 1
-
-OUTPUT
-3
-380
-191
-605
-13
 
 TEXTBOX
 9
@@ -960,7 +953,7 @@ SWITCH
 256
 Show-Links
 Show-Links
-1
+0
 1
 -1000
 
@@ -1068,6 +1061,24 @@ NIL
 NIL
 NIL
 1
+
+OUTPUT
+3
+380
+191
+605
+13
+
+MONITOR
+112
+625
+189
+670
+Recording
+c-record
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
