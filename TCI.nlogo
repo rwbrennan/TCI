@@ -693,6 +693,40 @@ to record-consensus-data [what time variable]
   file-print variable
 end
 
+to record-propositions
+  ;; This procedure is used to record the student propositions to a file
+  ifelse c-record
+  [
+    user-message "Consensus data is currently being recorded. To record propositions, end the consensus data recording"
+  ]
+  [
+    file-open "Output-Propositions.txt"
+    let i 1
+    let j 1
+    while [i <= concepts]
+    [
+      while [j <= concepts]
+      [
+        if i != j
+        [
+          if count student-links with [from-concept = i and to-concept = j] > 0
+          [
+            file-print (word (item (i - 1) concept) " -> " (item (j - 1) concept))
+            ask student-links with [from-concept = i and to-concept = j]
+            [
+              file-print (word label " (" student-id ")")
+            ]
+          ]
+        ]
+        set j j + 1
+      ]
+      set j 1
+      set i i + 1
+    ]
+    file-close
+  ]
+end
+
 to-report c-position [ concept-number ]
   ;; This procedure is used to calculate the mean position of all students' with concept = concept-number
   ;; A list is reported as follows:
@@ -819,7 +853,7 @@ SWITCH
 173
 Track
 Track
-0
+1
 1
 -1000
 
@@ -903,10 +937,10 @@ true
 PENS
 
 BUTTON
-3
-611
-103
-644
+7
+636
+107
+669
 Start Recording
 setup-consensus-data TRUE
 NIL
@@ -920,10 +954,10 @@ NIL
 1
 
 BUTTON
-3
-648
-103
-681
+7
+673
+107
+706
 Stop Recording
 setup-consensus-data FALSE
 NIL
@@ -939,9 +973,9 @@ NIL
 TEXTBOX
 9
 269
-159
-287
-Display Student Concepts:
+182
+297
+Display Student Propositions:
 11
 0.0
 1
@@ -953,7 +987,7 @@ SWITCH
 256
 Show-Links
 Show-Links
-0
+1
 1
 -1000
 
@@ -1070,15 +1104,52 @@ OUTPUT
 13
 
 MONITOR
-112
-625
-189
-670
+116
+650
+193
+695
 Recording
 c-record
 17
 1
 11
+
+TEXTBOX
+9
+619
+159
+637
+Record Consensus Data:
+11
+0.0
+1
+
+TEXTBOX
+8
+716
+158
+734
+Record Proposition Data:
+11
+0.0
+1
+
+BUTTON
+8
+737
+83
+770
+Record
+record-propositions
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
