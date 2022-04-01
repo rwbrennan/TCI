@@ -769,6 +769,23 @@ end
 to-report random-between [ min-num max-num ]
     report random-float (max-num - min-num) + min-num
 end
+
+to show-level [ client-name ]
+  let i 0
+  let last-level 15
+  foreach sort-on [(- ycor)] students with [user-id = client-name]
+  [
+    the-student -> ask the-student
+    [
+      if (last-level - ycor) > 1.5
+      [
+        set i i + 1
+        set last-level ycor
+      ]
+      show (word "Level " i ": " item (concept-no - 1) concept " ycor: " ycor)
+    ]
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 200
@@ -1264,6 +1281,14 @@ Some features should be added that provide some insight into the _evolution_ of 
 * It may be useful to add a "plot update period" input to allow the user to decide how fine or course the data collection should be (and consequently, the size of the data file).
 * An indication of which concepts are the most _troublesome_. This metric will have to be defined: e.g., based on the Std Dev, based on the length of time to reach consensus. This metric is important with respect to the notion of identifying _threshold concepts_.
 
+### Concept Map Scoring
+It would be interesting to see if each of the student concept maps can be scored based on the scoring method described by Torre et al. (2017):
+
+* Proposition: Is it valid? (1 point for each)
+* Hierarchy: Does the map show hierarchy? (5 points for each level of hierarchy)
+* Cross Links: Do cross links connect one level of a hierarchy to another? (10 points each)
+* Examples: Does the map show examples? (1 point each)
+
 ### Code block example:
 Here is an example of how to show a code block in the Info tab:
 
@@ -1280,6 +1305,8 @@ Cousins, G. (2008). _Researching Learning in Higher Education_. Routledge.
 Meyer, J., & Land, R. (2003). _Threshold concepts and troublesome knowledge: linkages to ways of thinking and practicing within the disciples_ (Tech. Rep.). Edinburgh: ETL Project Occasional Report 4.
 
 Novak, J. D. (1984). _Learning how to learn_. New York: Cambridge University Press.
+
+Torre D.M., Durning S.J., Daley B.J. (2017) “Concept maps: definition, structure, and scoring”, _Academic Medicine_, 92:1802.
 
 Waggoner, J., Carline, J. D., & Durning, S. J. (2016). Is there a consensus on consensus
 methodology? descriptions and recommendations for future consensus research. _Academic
