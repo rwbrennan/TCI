@@ -33,6 +33,7 @@ students-own
   from-no     ;; Originating concept number of a link: i.e., the "from" concept number
   to-no       ;; Terminating concept number of a link: i.e., the "to" concept number
   s-prop      ;; Proposition for the link
+  at-level    ;; The concept level
 ]
 
 classes-own
@@ -770,20 +771,29 @@ to-report random-between [ min-num max-num ]
     report random-float (max-num - min-num) + min-num
 end
 
-to show-level [ client-name ]
+to calculate-levels
+  ;; This procedure is used to calculate the level each student concept is at
   let i 0
-  let last-level 15
-  foreach sort-on [(- ycor)] students with [user-id = client-name]
+  let j 0
+  while [i < length hubnet-clients-list]
   [
-    the-student -> ask the-student
+    set j 0
+    let last-level 15
+    ;show (word "Client: " item i hubnet-clients-list)
+    foreach sort-on [(- ycor)] students with [user-id = item i hubnet-clients-list]
     [
-      if (last-level - ycor) > 1.5
+      the-student -> ask the-student
       [
-        set i i + 1
-        set last-level ycor
+        if (last-level - ycor) > 1.5
+        [
+          set j j + 1
+          set last-level ycor
+        ]
+        set at-level j
+        ;show (word "Level " at-level ": " item (concept-no - 1) concept " ycor: " ycor)
       ]
-      show (word "Level " i ": " item (concept-no - 1) concept " ycor: " ycor)
     ]
+    set i i + 1
   ]
 end
 @#$#@#$#@
