@@ -16,6 +16,7 @@ globals
   concept          ;; concept list
   c-record         ;; if TRUE, save consensus data
   plot-increment   ;; variable used to scroll the interaction diagram
+  map-score        ;; A list containing the concept map score [user-id, propositions, levels, cross links, score]
 ]
 
 students-own
@@ -34,7 +35,6 @@ students-own
   to-no       ;; Terminating concept number of a link: i.e., the "to" concept number
   s-prop      ;; Proposition for the link
   at-level    ;; The concept level
-  map-score   ;; A list containing the concept map score [propositions, levels, cross links, score]
 ]
 
 classes-own
@@ -185,7 +185,6 @@ to create-new-student
       set label (word item i concept " (" user-id ")" )
       set label-color white
       set hidden? TRUE
-      set map-score []
     ]
     set i i + 1
   ]
@@ -806,17 +805,21 @@ to calculate-scores
   ;; First, calculate the number of levels for each student concept
   calculate-levels
   let i 0
+  set map-score []
   ;; Next, calculate the score parameters for each student
   while [i < length hubnet-clients-list]
   [
-    show (word "Client: " item i hubnet-clients-list)
+    set map-score lput item i hubnet-clients-list map-score
     ;; Number of propositions
-    show count student-links with [student-id = item i hubnet-clients-list and is-string? label and length label > 0]
+    ;show count student-links with [student-id = item i hubnet-clients-list and is-string? label and length label > 0]
+    set map-score lput count student-links with [student-id = item i hubnet-clients-list and is-string? label and length label > 0] map-score
     ;; Number of levels
-    show max [at-level] of students with [user-id = item i hubnet-clients-list]
+    ;show max [at-level] of students with [user-id = item i hubnet-clients-list]
+    set map-score lput max [at-level] of students with [user-id = item i hubnet-clients-list] map-score
     ;; Number of cross links
     set i i + 1
   ]
+  show map-score
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -1036,7 +1039,7 @@ SWITCH
 256
 Show-Links
 Show-Links
-0
+1
 1
 -1000
 
@@ -1305,6 +1308,16 @@ An output window has been added to record student propositions.
 
 ### Student (Client) Functions
 It may be useful to allow students or the instructor to add additional concepts to the world view (see "How to Use it" above).
+
+* input window to enter concept description
+* "Create Concept" button
+
+For this new functionality, see the _create-new-student_ method.
+
+Similarly, a remove concept input could be added. For this function, a variation of the _remove-student_ producedure could be used.
+
+* drop-down list for the concepts
+* "Remove Concept" button
 
 ### Metrics
 Some features should be added that provide some insight into the _evolution_ of the concept map over time.
