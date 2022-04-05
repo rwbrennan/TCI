@@ -782,7 +782,7 @@ to calculate-levels
   [
     set j 0
     let last-level 15
-    show (word "Client: " item i hubnet-clients-list)
+    ;show (word "Client: " item i hubnet-clients-list)
     foreach sort-on [(- ycor)] students with [user-id = item i hubnet-clients-list]
     [
       the-student -> ask the-student
@@ -793,30 +793,58 @@ to calculate-levels
           set last-level ycor
         ]
         set at-level j
-        show (word "Level " at-level ": " item (concept-no - 1) concept " ycor: " ycor)
+        ;show (word "Level " at-level ": " item (concept-no - 1) concept " ycor: " ycor)
       ]
     ]
     set i i + 1
   ]
 end
 
+to-report calculate-cross-links [client-name upper]
+  let cross-links 0
+  ;ask students with [user-id = client-name and at-level = upper] [show count link-neighbors with [at-level = lower]]
+  foreach sort-on [xcor] students with [user-id = client-name and at-level = upper]
+  [
+    the-student -> ask the-student
+    [
+      set cross-links cross-links + count link-neighbors with [at-level = upper + 1]
+    ]
+  ]
+  report cross-links
+end
+
 to calculate-scores
+  ;; This procedure is used to calculate the concept map scores for each student.
   ;;
   ;; First, calculate the number of levels for each student concept
   calculate-levels
   let i 0
+  let j 1
+  let no-props 0
+  let no-levels 0
+  let x-links 0
   set map-score []
   ;; Next, calculate the score parameters for each student
   while [i < length hubnet-clients-list]
   [
     set map-score lput item i hubnet-clients-list map-score
     ;; Number of propositions
-    ;show count student-links with [student-id = item i hubnet-clients-list and is-string? label and length label > 0]
-    set map-score lput count student-links with [student-id = item i hubnet-clients-list and is-string? label and length label > 0] map-score
+    set no-props count student-links with [student-id = item i hubnet-clients-list and is-string? label and length label > 0]
+    set map-score lput no-props map-score
     ;; Number of levels
-    ;show max [at-level] of students with [user-id = item i hubnet-clients-list]
-    set map-score lput max [at-level] of students with [user-id = item i hubnet-clients-list] map-score
+    set no-levels max [at-level] of students with [user-id = item i hubnet-clients-list]
+    set map-score lput levels map-score
     ;; Number of cross links
+    while [j < no-levels]
+    [
+      set x-links x-links + (calculate-cross-links (item i hubnet-clients-list) j)
+      set j j + 1
+    ]
+    set map-score lput x-links map-score
+    ;; Concept map score
+    set map-score lput (no-props + 5 * no-levels + 10 * x-links) map-score
+    set x-links 0
+    set j 1
     set i i + 1
   ]
   show map-score
@@ -1039,7 +1067,7 @@ SWITCH
 256
 Show-Links
 Show-Links
-1
+0
 1
 -1000
 
