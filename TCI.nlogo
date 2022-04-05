@@ -725,6 +725,8 @@ to record-propositions
       set j 1
       set i i + 1
     ]
+    calculate-scores
+    file-print (word "Concept Map Scores:" map-score)
     file-close
   ]
 end
