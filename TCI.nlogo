@@ -34,6 +34,7 @@ students-own
   to-no       ;; Terminating concept number of a link: i.e., the "to" concept number
   s-prop      ;; Proposition for the link
   at-level    ;; The concept level
+  map-score   ;; A list containing the concept map score [propositions, levels, cross links, score]
 ]
 
 classes-own
@@ -184,6 +185,7 @@ to create-new-student
       set label (word item i concept " (" user-id ")" )
       set label-color white
       set hidden? TRUE
+      set map-score []
     ]
     set i i + 1
   ]
@@ -773,13 +775,15 @@ end
 
 to calculate-levels
   ;; This procedure is used to calculate the level each student concept is at
+  ;; It will be good to try to turn this into a method to calculate the score for
+  ;; each student.
   let i 0
   let j 0
   while [i < length hubnet-clients-list]
   [
     set j 0
     let last-level 15
-    ;show (word "Client: " item i hubnet-clients-list)
+    show (word "Client: " item i hubnet-clients-list)
     foreach sort-on [(- ycor)] students with [user-id = item i hubnet-clients-list]
     [
       the-student -> ask the-student
@@ -790,9 +794,27 @@ to calculate-levels
           set last-level ycor
         ]
         set at-level j
-        ;show (word "Level " at-level ": " item (concept-no - 1) concept " ycor: " ycor)
+        show (word "Level " at-level ": " item (concept-no - 1) concept " ycor: " ycor)
       ]
     ]
+    set i i + 1
+  ]
+end
+
+to calculate-scores
+  ;;
+  ;; First, calculate the number of levels for each student concept
+  calculate-levels
+  let i 0
+  ;; Next, calculate the score parameters for each student
+  while [i < length hubnet-clients-list]
+  [
+    show (word "Client: " item i hubnet-clients-list)
+    ;; Number of propositions
+    show count student-links with [student-id = item i hubnet-clients-list and is-string? label and length label > 0]
+    ;; Number of levels
+    show max [at-level] of students with [user-id = item i hubnet-clients-list]
+    ;; Number of cross links
     set i i + 1
   ]
 end
@@ -880,7 +902,7 @@ SWITCH
 173
 Track
 Track
-1
+0
 1
 -1000
 
@@ -1014,7 +1036,7 @@ SWITCH
 256
 Show-Links
 Show-Links
-1
+0
 1
 -1000
 
