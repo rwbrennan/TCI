@@ -132,6 +132,7 @@ to go
       plot-cluster-consensus
     ]
     if Show-Links [plot-link-consensus]
+    face-class-concepts
     tick
   ]
 
@@ -177,12 +178,15 @@ to create-new-student
       ;; display concepts vertically on right of world view
       setxy (max-pxcor - gap) (max-pycor - (i + 1) * gap)
       set color student-color
-      set shape "box"
+      ;set shape "box"
+      set shape "circle"
+      set size 0.5
       set concept-no i + 1
       set index s-index
       ;; Store the message-source in user-id now so the server knows which client to address.
       set user-id hubnet-message-source
-      set label (word item i concept " (" user-id ")" )
+      ;set label (word item i concept " (" user-id ")" )
+      set label item i concept
       set label-color white
       set hidden? TRUE
     ]
@@ -289,7 +293,7 @@ to execute-overrides
     ask students with [user-id = client]
     [
       ;; First, the client's concepts and links are made visible.
-      hubnet-send-override client self "color" [green]
+      ;hubnet-send-override client self "color" [green]
       hubnet-send-override client self "label-color" [white]
       hubnet-send-override client self "hidden?" [FALSE]
       ask student-links with [student-id = client] [
@@ -348,7 +352,7 @@ to setup-input-parameters
   ;; Each concept is a line (i.e., single or multiple words) separated by carriage returns.
   file-open "Input-Parameters.txt"
   ;; First, read the focus question and put it at the top of the world view
-  ask patch (max-pxcor - 1) 14 [set plabel (word "Concept Q: " file-read-line) set plabel-color yellow]
+  ask patch (max-pxcor - 1) 14 [set plabel (word "Focus Q: " file-read-line) set plabel-color yellow]
   set concept []
   while [ not file-at-end? ]
   [
@@ -558,7 +562,11 @@ to plot-level-consensus
       set-current-plot-pen (word "C" i)
       set consensus concept-consensus sqrt (variance [ ycor ] of students with [ concept-no = i ])
       plotxy timer consensus
-      if c-record = TRUE [record-consensus-data (word "LC" i) timer consensus]
+      if  c-record = TRUE and (floor timer mod Recording-Period) = 0
+      [
+        record-consensus-data (word "LC" i) timer consensus
+        ;show (word "Recording concept " i " at " timer " seconds")
+      ]
       set i i + 1
     ]
   ]
@@ -851,6 +859,37 @@ to calculate-scores
   ]
   show map-score
 end
+
+to face-class-concepts
+  ;; This procedure is used to control the orientation of the student concepts as the class concept map evolves
+  let i 0
+  let consensus 0
+  while [i < concepts]
+  [
+    ask students with [concept-no = i + 1]
+    [
+      face class i
+      set consensus distance class i
+      (ifelse consensus < 1
+      [
+        set shape "circle"
+        set size 0.6
+        set color green
+      ]
+      [
+        set shape "default"
+        set size 1
+        (ifelse
+          consensus < 2 [set color green]
+          consensus >= 2 and consensus < 5 [set color yellow]
+          consensus >= 5 and consensus < 10 [set color orange]
+          consensus >= 10 [set color red]
+        )
+      ])
+    ]
+    set i i + 1
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 200
@@ -922,7 +961,7 @@ Levels
 Levels
 0
 concepts
-3.0
+9.0
 1
 1
 NIL
@@ -931,18 +970,18 @@ HORIZONTAL
 SWITCH
 10
 140
-113
+100
 173
 Track
 Track
-0
+1
 1
 -1000
 
 SWITCH
 10
 181
-113
+100
 214
 Cluster
 Cluster
@@ -1019,10 +1058,10 @@ true
 PENS
 
 BUTTON
-7
-636
-107
-669
+5
+605
+105
+638
 Start Recording
 setup-consensus-data TRUE
 NIL
@@ -1036,10 +1075,10 @@ NIL
 1
 
 BUTTON
-7
-673
-107
-706
+5
+642
+105
+675
 Stop Recording
 setup-consensus-data FALSE
 NIL
@@ -1069,7 +1108,7 @@ SWITCH
 256
 Show-Links
 Show-Links
-0
+1
 1
 -1000
 
@@ -1159,7 +1198,7 @@ CHOOSER
 Link-To
 Link-To
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
-1
+16
 
 BUTTON
 54
@@ -1182,14 +1221,14 @@ OUTPUT
 3
 380
 191
-605
+528
 13
 
 MONITOR
-116
-650
-193
-695
+114
+619
+191
+664
 Recording
 c-record
 17
@@ -1197,30 +1236,30 @@ c-record
 11
 
 TEXTBOX
-9
-619
-159
-637
+7
+540
+157
+558
 Record Consensus Data:
 11
 0.0
 1
 
 TEXTBOX
-8
-716
-158
-734
+6
+685
+156
+703
 Record Proposition Data:
 11
 0.0
 1
 
 BUTTON
-8
-737
-83
-770
+6
+706
+81
+739
 Record
 record-propositions
 NIL
@@ -1232,6 +1271,21 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+4
+561
+188
+594
+Recording-Period
+Recording-Period
+0
+20
+5.0
+1
+1
+Seconds
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1262,9 +1316,9 @@ of the concepts in the instructor (server) concept map. As well, concepts that s
 
 ### Setup
 
-To setup the activity, the instructor creates an input file, 'Input-Parameters.txt', that contains the concept question and the concepts that will be used to develop the concept map. The structure of 'Input-Parameters.txt' is as follows:
+To setup the activity, the instructor creates an input file, 'Input-Parameters.txt', that contains the focus question and the concepts that will be used to develop the concept map. The structure of 'Input-Parameters.txt' is as follows:
 
-1. Concept Question
+1. Focus Question
 2. Concept #1
 3. Concept #2
 4. ...
@@ -1297,7 +1351,7 @@ As well, the instructor can monitor the degree of student 'level consensus' (ran
 Once logged in, the students (clients) can follow the steps proposed by Novak (1984) to build the concept map:
 
 1. _Focus Question & Concepts_: This step is completed by the instructor during the setup. The focus question is displayed on the upper right area of the world view.
-2. _Rank Order_: For this step, students should be asked to drag the concepts to the level bars. The horizontal (left to right) order is not important at this point - students should only concentrate on the vertical order: i.e., The broadest and most inclusive concepts at the top of the map; sub-concepts are placed under broader concepts (Novak, 1984). The _Cluster_ switch should be in the 'Off' position for this step so that a vertical (rank order) level of consensus is reflected by the class concept colours.
+2. _Rank Order_: For this step, students should be asked to drag the concepts to the level bars. The horizontal (left to right) order is not important at this point - students should only concentrate on the vertical order: i.e., The broadest and most inclusive concepts at the top of the map; sub-concepts are placed under broader concepts (Novak, 1984). The _Cluster_ switch should be in the 'Off' position for this step so that a vertical (rank order) level of consensus is reflected by the class concept colours. Students will see the orientation and colour of each concept change as they move it in the view: the orientation points towards the consensus concept, while the color corresponds to distance from the consensus concept (green closest, red furthest). When the student concept is aligned with the consensus concept, the shape changes to a circle.
 3. _Cluster_: For this step, students should be asked to cluster the concepts by grouping sub-concepts under general concepts (i.e., consider the horizontal order at this point). The _Cluster_ slider should be moved to the 'On' position this step so that a horizontal level of consensus is reflected by the class concept colours.
 4. _Link_: For this step, the instructor can clear the grid (click the _Clear Grid_ button), then ask the students to create the links between the concepts. To create links, student select a _From-Concept_ and a _To-Concept_ from using the choosers on the client interface. The choosers use the concept number and display the concept in the _FromConcept_ and _ToConcept_ monitors respectively. Student should next type a proposition into the _Proposition_ input (Enter/Return must be pressed to read the proposition). Once the 'from' and 'to' concepts are selected and the proposition is entered, the student should click _Create-Link_. To see the link, the student must click anywhere on the world view. To remove a linke, the appropriate _From-Concept_ and _To-Concept_ chooser should be selected, then the _Remove-Link_ button can be pressed.
 
