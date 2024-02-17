@@ -194,6 +194,51 @@ to create-new-student
   ]
 end
 
+to create-new-manual-students
+  ;; Manually, create a student turtle for each concept.
+  ;; These turtles will store any state on the client (i.e., values of sliders, etc.)
+  file-open "Input-Students.txt"
+  let manual-students file-read
+  let manual-id 0
+  let j 0
+  while [ j < manual-students ]
+  [
+    ;
+    set manual-id file-read
+    let i 0
+    set s-index s-index + 1
+    set s-selected lput nobody s-selected
+    ;; Each student will be represented by a different base color in the server interface.
+    let student-color one-of remove gray base-colors
+    ;let gap (max-pycor - min-pycor) / (length concept + 1)
+    while [ i < concepts]
+    [
+      create-students 1
+      [
+        ;; display concepts vertically on right of world view
+        ;setxy (max-pxcor - gap) (max-pycor - (i + 1) * gap)
+        set user-id (word "Manual " manual-id)
+        setxy file-read file-read
+        set color student-color
+        ;set shape "box"
+        set shape "circle"
+        set size 0.5
+        set concept-no i + 1
+        set index s-index
+        ;; Store the message-source in user-id now so the server knows which client to address.
+        ;set user-id hubnet-message-source
+        ;set label (word item i concept " (" user-id ")" )
+        set label item i concept
+        set label-color white
+        set hidden? TRUE
+      ]
+      set i i + 1
+    ]
+    set j j + 1
+  ]
+  file-close
+end
+
 to remove-student
   ;; When a user logs out, this procedures makes sure to clean up the turtle that
   ;; was associated with that user (so you don't try to send messages to it after it is gone).
@@ -961,7 +1006,7 @@ Levels
 Levels
 0
 concepts
-9.0
+4.0
 1
 1
 NIL
@@ -974,7 +1019,7 @@ SWITCH
 173
 Track
 Track
-1
+0
 1
 -1000
 
@@ -1737,7 +1782,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.2
+NetLogo 6.4.0
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
