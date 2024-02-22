@@ -1,0 +1,10 @@
+What are the elements of a programmable logic controller?
+Programmable Logic Controllers
+Process Image
+Memory
+Processor
+IEC 61131-3
+I/O
+Output Image
+Input Image
+PLC Software
