@@ -1,6 +1,4 @@
-How does input device wiring affect LD state?
-N.C. Push Button
-N.O. Contact
-N.C. Contact
-FALSE
-TRUE
+Level Consensus Test
+C1
+C2
+C3

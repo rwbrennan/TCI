@@ -109,7 +109,7 @@ to go
     ;; otherwise, the messages will be created as fast as possible
     ;; and consume your bandwidth.
     if Track and length hubnet-clients-list > 1 [ position-class-concepts ]
-    ifelse mouse-down?
+    ifelse mouse-down? or View?
     [
       view-student-concepts
     ]
@@ -937,9 +937,9 @@ to face-class-concepts
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-200
+202
 10
-931
+933
 742
 -1
 -1
@@ -1006,7 +1006,7 @@ Levels
 Levels
 0
 concepts
-4.0
+3.0
 1
 1
 NIL
@@ -1331,6 +1331,17 @@ Recording-Period
 1
 Seconds
 HORIZONTAL
+
+SWITCH
+108
+140
+198
+173
+View?
+View?
+1
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
