@@ -1395,7 +1395,7 @@ The instructor concepts ("class concepts") show the class consensus for each con
 
 To enable the "consensus tracking" for the class concepts, select the _Track_ slider (there must be at least two clients to enable this feature). Once tracking is enabled, the consensus data can be recorded by selecting _Start Recording_. The data is recorded in a .csv file.
 
-The instructor can view the student concepts by clicking on a class concept. For example, if one of the class concepts shows some disagreement (e.g., it is orange or red), the instructor can click on the concept and see all of the student concepts associated with that concept to determine where the disagreement lies. The _Cluster_ slider is used determine how the level of disagreement is represented:
+The instructor can view the student concepts by clicking on a class concept. For example, if one of the class concepts shows some disagreement (e.g., it is orange or red), the instructor can click on the concept and see all of the student concepts associated with that concept to determine where the disagreement lies. A _View?_ selector is also provided that allows the instructor to view student concepts by simply hovering the mouse over the class concept. The _Cluster_ slider is used determine how the level of disagreement is represented:
 
 * _Cluster_ Off: The standard deviation of student concept ycor is used (i.e., vertical disagreement). This position should be used for the 'Rank Order' step.
 * _Cluster_ On: The standard deviation of student concept xcor is used (i.e., horizontal disagreement). This position should be used for the 'Cluster' step.
